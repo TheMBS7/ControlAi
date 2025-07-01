@@ -79,6 +79,20 @@ namespace WebAPI.Controllers
 
             return Ok("Extrato excluído.");
         }
- 
+
+       [HttpGet("Exibir-Extratos")]
+        public async Task<IActionResult> ExibirExtratos()
+        {
+            var extratos = await _context.Extratos
+                .Include(e => e.Categoria)
+                .Include(e => e.Pessoa)
+                .Include(e => e.Mes)
+                .ToListAsync();
+
+            return Ok(extratos);
+        }
+
+
+
     }
 }

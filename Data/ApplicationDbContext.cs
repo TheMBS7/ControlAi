@@ -15,5 +15,6 @@ namespace WebAPI.Data
         public DbSet<Extrato> Extratos { get; set; }
         public DbSet<EntradaFixa> EntradasFixas { get; set; }
         public DbSet<SaidaFixa> SaidasFixas { get; set; }
+        public DbSet<Mes> Meses { get; set; }
     }
 }

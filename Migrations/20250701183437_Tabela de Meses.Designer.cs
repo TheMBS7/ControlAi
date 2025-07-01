@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebAPI.Data;
@@ -11,9 +12,11 @@ using WebAPI.Data;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701183437_Tabela de Meses")]
+    partial class TabeladeMeses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,9 +83,6 @@ namespace WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("MesId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("NumeroParcelas")
                         .HasColumnType("integer");
 
@@ -96,28 +96,9 @@ namespace WebAPI.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.HasIndex("MesId");
-
                     b.HasIndex("PessoaId");
 
                     b.ToTable("Extratos");
-                });
-
-            modelBuilder.Entity("WebAPI.Entities.Mes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Meses");
                 });
 
             modelBuilder.Entity("WebAPI.Entities.Pessoa", b =>
@@ -173,12 +154,6 @@ namespace WebAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebAPI.Entities.Mes", "Mes")
-                        .WithMany()
-                        .HasForeignKey("MesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebAPI.Entities.Pessoa", "Pessoa")
                         .WithMany()
                         .HasForeignKey("PessoaId")
@@ -186,8 +161,6 @@ namespace WebAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
-
-                    b.Navigation("Mes");
 
                     b.Navigation("Pessoa");
                 });

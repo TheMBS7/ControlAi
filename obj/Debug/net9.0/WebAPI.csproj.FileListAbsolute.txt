@@ -130,3 +130,4 @@ C:\Projetos\ControlAi\WebAPI\obj\Debug\net9.0\refint\WebAPI.dll
 C:\Projetos\ControlAi\WebAPI\obj\Debug\net9.0\WebAPI.pdb
 C:\Projetos\ControlAi\WebAPI\obj\Debug\net9.0\WebAPI.genruntimeconfig.cache
 C:\Projetos\ControlAi\WebAPI\obj\Debug\net9.0\ref\WebAPI.dll
+C:\Projetos\ControlAi\webApi\obj\Debug\net9.0\WebAPI.sourcelink.json

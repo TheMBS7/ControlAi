@@ -11,6 +11,9 @@ namespace WebAPI.Entities
         public Categoria Categoria { get; set; } = default!;
         public int PessoaId { get; set; }
         public Pessoa Pessoa { get; set; } = default!;
+        public int MesId { get; set; }
+        public Mes Mes { get; set; } = default!;
+        
         
     }
 }
