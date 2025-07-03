@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Data;               
-using WebAPI.Entities;           
-using WebAPI.RequestModels; 
+using WebAPI.Data;
+using WebAPI.Entities;
+using WebAPI.RequestModels;
 
 namespace WebAPI.Controllers
 {
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
             return Ok("Extrato excluído.");
         }
 
-       [HttpGet("Exibir-Extratos")]
+        [HttpGet("Display-Extratos")]
         public async Task<IActionResult> ExibirExtratos()
         {
             var extratos = await _context.Extratos

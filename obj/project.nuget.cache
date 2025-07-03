@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rX371Ifzx7c=",
+  "dgSpecHash": "bUYQ19ajFq4=",
   "success": true,
-  "projectFilePath": "C:\\Projetos\\ControlAi\\WebAPI\\WebAPI.csproj",
+  "projectFilePath": "C:\\Projetos\\ControlAi\\webapi\\WebAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mathe\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\mathe\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.6\\microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Data;               
-using WebAPI.Entities;           
-using WebAPI.RequestModels; 
+using WebAPI.Data;
+using WebAPI.Entities;
+using WebAPI.RequestModels;
 
 namespace WebAPI.Controllers
 {
@@ -81,6 +81,14 @@ namespace WebAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Entrada excluída.");
+        }
+
+        [HttpGet("Dsplay-EntradasFixas")]
+        public async Task<IActionResult> ExibirEntradasFixas()
+        {
+            var entradaFixas = await _context.EntradasFixas.ToListAsync();
+
+            return Ok(entradaFixas);
         }
     }
 }

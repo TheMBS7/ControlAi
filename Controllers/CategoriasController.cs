@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Data;               
-using WebAPI.Entities;           
-using WebAPI.RequestModels; 
+using WebAPI.Data;
+using WebAPI.Entities;
+using WebAPI.RequestModels;
 
 namespace WebAPI.Controllers
 {
@@ -78,6 +78,14 @@ namespace WebAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Categoria excluída.");
+        }
+
+        [HttpGet("Display-Categorias")]
+        public async Task<IActionResult> ExibirCategorias()
+        {
+            var categorias = await _context.Categorias.ToListAsync();
+
+            return Ok(categorias);
         }
 
     }

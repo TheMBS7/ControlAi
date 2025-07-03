@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Data;               
-using WebAPI.Entities;           
-using WebAPI.RequestModels; 
+using WebAPI.Data;
+using WebAPI.Entities;
+using WebAPI.RequestModels;
 
 namespace WebAPI.Controllers
 {
@@ -79,5 +79,16 @@ namespace WebAPI.Controllers
 
             return Ok("Pessoa excluída.");
         }
+
+        [HttpGet("Display-Pessoas")]
+        public async Task<IActionResult> ExibirPessoas()
+        {
+            var pessoas = await _context.Pessoas.ToListAsync();
+
+            return Ok(pessoas);
+        }
+
+
+
     }
 }
