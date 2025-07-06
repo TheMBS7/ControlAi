@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             _context.Categorias.Add(novaCategoria);
             await _context.SaveChangesAsync();
 
-            return Ok("Categoria criada com sucesso!");
+            return Ok(novaCategoria);
         }
 
         [HttpPut("Edit/{id}")]
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Categoria atualizada com sucesso.");
+            return Ok(categoria);
         }
 
         [HttpDelete("Delete/{id}")]
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
             _context.Categorias.Remove(categoria);
             await _context.SaveChangesAsync();
 
-            return Ok("Categoria excluída.");
+            return Ok(new { mensagem = "Categoria excluída com sucesso!" });
         }
 
         [HttpGet("Display-Categorias")]
