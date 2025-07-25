@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
             _context.EntradasFixas.Add(novaEntradaFixa);
             await _context.SaveChangesAsync();
 
-            return Ok("Entrada criada com sucesso!");
+            return Ok(novaEntradaFixa);
         }
 
         [HttpPut("Edit/{id}")]
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Entrada atualizada com sucesso.");
+            return Ok(entradaFixa);
         }
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeletarEntradaFixa(int id)
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
             return Ok("Entrada excluída.");
         }
 
-        [HttpGet("Dsplay-EntradasFixas")]
+        [HttpGet("Display-EntradasFixas")]
         public async Task<IActionResult> ExibirEntradasFixas()
         {
             var entradaFixas = await _context.EntradasFixas.ToListAsync();

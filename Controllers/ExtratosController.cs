@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
             _context.Extratos.Add(novoExtrato);
             await _context.SaveChangesAsync();
 
-            return Ok("sucesso!");
+            return Ok(novoExtrato);
         }
 
         [HttpPut("Edit/{id}")]
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Extrato atualizado com sucesso.");
+            return Ok(extrato);
         }
 
         [HttpDelete("Delete/{id}")]

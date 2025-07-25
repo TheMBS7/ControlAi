@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
             _context.SaidasFixas.Add(novaSaidaFixa);
             await _context.SaveChangesAsync();
 
-            return Ok("Saída criada com sucesso!");
+            return Ok(novaSaidaFixa);
         }
 
         [HttpPut("Edit/{id}")]
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Saída atualizada com sucesso.");
+            return Ok(saidaFixa);
         }
 
         [HttpDelete("Delete/{id}")]

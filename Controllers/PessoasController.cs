@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             _context.Pessoas.Add(novaPessoa);
             await _context.SaveChangesAsync();
 
-            return Ok("Pessoa criada com sucesso!");
+            return Ok(novaPessoa);
         }
 
         [HttpPut("Edit/{id}")]
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Pessoa atualizada com sucesso.");
+            return Ok(pessoa);
         }
 
         [HttpDelete("Delete/{id}")]
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
             _context.Pessoas.Remove(pessoa);
             await _context.SaveChangesAsync();
 
-            return Ok("Pessoa excluída.");
+            return Ok(pessoa);
         }
 
         [HttpGet("Display-Pessoas")]
