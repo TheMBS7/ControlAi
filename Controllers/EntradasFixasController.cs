@@ -80,13 +80,16 @@ namespace WebAPI.Controllers
             _context.EntradasFixas.Remove(entradaFixa);
             await _context.SaveChangesAsync();
 
-            return Ok("Entrada excluída.");
+            return Ok(new { message = "Excluído com sucesso" });
+
         }
 
         [HttpGet("Display-EntradasFixas")]
         public async Task<IActionResult> ExibirEntradasFixas()
         {
-            var entradaFixas = await _context.EntradasFixas.ToListAsync();
+            var entradaFixas = await _context.EntradasFixas
+                .OrderBy(entradaFixa => entradaFixa.DataReferencia)
+                .ToListAsync();
 
             return Ok(entradaFixas);
         }

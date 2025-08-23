@@ -70,6 +70,10 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeletarCategoria(int id)
         {
             var categoria = await _context.Categorias.FindAsync(id);
+            var existeSaida = await _context.SaidasFixas.AnyAsync(saidaFixa => saidaFixa.CategoriaId == id);
+
+            if (existeSaida)
+                return BadRequest("Ops! Esta categoria está vinculada a uma ou mais saídas e, por isso, não pode ser excluída.");
 
             if (categoria == null)
                 return NotFound("Categoria não encontrada.");

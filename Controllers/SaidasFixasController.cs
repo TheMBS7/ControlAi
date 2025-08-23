@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             {
                 Descricao = model.Descricao,
                 Valor = model.Valor,
-                Vencimento = model.DataVencimento,
+                DataVencimento = model.DataVencimento,
                 Categoria = categoria
             };
 
@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
 
             saidaFixa.Descricao = model.Descricao;
             saidaFixa.Valor = model.Valor;
-            saidaFixa.Vencimento = model.DataVencimento;
+            saidaFixa.DataVencimento = model.DataVencimento;
             saidaFixa.CategoriaId = model.CategoriaId;
 
             await _context.SaveChangesAsync();
@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
             _context.SaidasFixas.Remove(saidaFixa);
             await _context.SaveChangesAsync();
 
-            return Ok("Saída excluída.");
+            return Ok();
         }
 
         [HttpGet("Display-SaidasFixas")]
@@ -95,6 +95,7 @@ namespace WebAPI.Controllers
         {
             var saidaFixas = await _context.SaidasFixas
             .Include(e => e.Categoria)
+            .OrderBy(saidaFixa => saidaFixa.DataVencimento)
             .ToListAsync();
 
             return Ok(saidaFixas);
