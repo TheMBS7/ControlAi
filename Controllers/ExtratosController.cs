@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
@@ -18,29 +19,17 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create-Extratos")]
-        public async Task<IActionResult> CriarExtratos(ExtratoCreateModel model)
+        public async Task<IActionResult> CriarExtratos(ExtratoCreateModel model, [FromServices] IExtratoService extratoService)
         {
-            var categoria = await _context.Categorias.FindAsync(model.CategoriaId);
-            var pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
 
-            if (categoria == null || pessoa == null)
-                return NotFound("Dados preenchidos incorretamente.");
+            IEnumerable<ExtratoDTO> extratosCriados = await extratoService.CriarExtratosAsync(model);
 
-
-            var novoExtrato = new Extrato
+            if (!extratosCriados.Any())
             {
-                Descricao = model.Descricao,
-                ValorTotal = model.Valor,
-                Data = model.Data,
-                NumeroParcelas = model.NumeroParcelas,
-                Categoria = categoria,
-                Pessoa = pessoa
-            };
+                return NotFound("Dados preenchidos incorretamente.");
+            }
 
-            _context.Extratos.Add(novoExtrato);
-            await _context.SaveChangesAsync();
-
-            return Ok(novoExtrato);
+            return Ok(extratosCriados);
         }
 
         [HttpPut("Edit/{id}")]
@@ -57,7 +46,8 @@ namespace WebAPI.Controllers
             extrato.Descricao = model.Descricao;
             extrato.ValorTotal = model.Valor;
             extrato.Data = model.Data;
-            extrato.NumeroParcelas = model.NumeroParcelas;
+            extrato.NumeroMaxParcelas = model.NumeroMaxParcelas;
+            extrato.NumeroParcela = model.NumeroParcela;
             extrato.CategoriaId = model.CategoriaId;
             extrato.PessoaId = model.PessoaId;
 
@@ -77,7 +67,7 @@ namespace WebAPI.Controllers
             _context.Extratos.Remove(extrato);
             await _context.SaveChangesAsync();
 
-            return Ok("Extrato excluído.");
+            return Ok();
         }
 
         [HttpGet("Display-Extratos")]
@@ -87,6 +77,7 @@ namespace WebAPI.Controllers
                 .Include(e => e.Categoria)
                 .Include(e => e.Pessoa)
                 .Include(e => e.Mes)
+                .OrderBy(e => e.Data)
                 .ToListAsync();
 
             return Ok(extratos);

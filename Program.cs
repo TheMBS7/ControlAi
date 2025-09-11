@@ -1,14 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Data;
+using WebAPI.Services;
+using WebAPI.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ControlAi", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ControlAi", Version = "v1" });
 });
+
+//Injeção Services
+builder.Services.AddScoped<IExtratoService, ExtratoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
