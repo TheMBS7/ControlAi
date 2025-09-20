@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using WebAPI.Services;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
@@ -18,77 +20,51 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create-Pessoa")]
-        public async Task<IActionResult> CriarPessoas(PessoaCreateModel model)
+        public async Task<IActionResult> CriarPessoas(PessoaCreateModel model, [FromServices] IPessoaService pessoaService)
         {
-            var repetePessoa = await _context.Pessoas.FirstOrDefaultAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
+            var pessoaCriada = await pessoaService.CriarPessoaAsync(model);
 
-            if (repetePessoa != null)
+            if (pessoaCriada == null)
             {
-                return BadRequest("Pessoa repetida.");
+                return BadRequest("Pessoa já existe.");
             }
 
-            var novaPessoa = new Pessoa
-            {
-                Nome = model.Nome
-            };
-
-            _context.Pessoas.Add(novaPessoa);
-            await _context.SaveChangesAsync();
-
-            return Ok(novaPessoa);
+            return Ok(pessoaCriada);
         }
 
         [HttpPut("Edit/{id}")]
-        public async Task<IActionResult> EditarPessoa(int id, PessoaEditModel model)
+        public async Task<IActionResult> EditarPessoa(int id, PessoaEditModel model, [FromServices] IPessoaService pessoaService)
         {
+            var pessoaEditada = await pessoaService.EditarPessoaAsync(id, model);
 
-            Pessoa? pessoa = await _context.Pessoas.FirstOrDefaultAsync(i => i.Id == id);
-
-            if (pessoa == null)
+            if (pessoaEditada == null)
             {
-                return NotFound("Pessoa não encontrado.");
+                return BadRequest("Erro ao editar pessoa");
             }
 
-            // Verifica se a descrição já está em uso
-            if (model.Nome != pessoa.Nome)
-            {
-                var nomeExiste = await _context.Pessoas.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
-                if (nomeExiste)
-                {
-                    return BadRequest("Pessoa já existente.");
-                }
-            }
-
-            pessoa.Nome = model.Nome;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(pessoa);
+            return Ok(pessoaEditada);
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarPessoa(int id)
+        public async Task<IActionResult> DeletarPessoa(int id, [FromServices] IPessoaService pessoaService)
         {
-            var pessoa = await _context.Pessoas.FindAsync(id);
+            bool resultadoDelete = await pessoaService.ExcluirPessoaAsync(id);
 
-            if (pessoa == null)
-                return NotFound("Pessoa não encontrada.");
+            if (!resultadoDelete)
+            {
+                return BadRequest();
+            }
 
-            _context.Pessoas.Remove(pessoa);
-            await _context.SaveChangesAsync();
-
-            return Ok(pessoa);
+            return Ok();
         }
 
         [HttpGet("Display-Pessoas")]
-        public async Task<IActionResult> ExibirPessoas()
+        public async Task<IActionResult> ExibirPessoas([FromServices] IPessoaService pessoaService)
         {
-            var pessoas = await _context.Pessoas.ToListAsync();
+            var pessoas = await pessoaService.MostrarPessoasAsync();
 
             return Ok(pessoas);
         }
-
-
 
     }
 }

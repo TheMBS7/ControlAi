@@ -14,6 +14,10 @@ builder.Services.AddSwaggerGen(c =>
 
 //Injeção Services
 builder.Services.AddScoped<IExtratoService, ExtratoService>();
+builder.Services.AddScoped<IPessoaService, PessoaService>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<ISaidaFixaService, SaidaFixaService>();
+builder.Services.AddScoped<IEntradaFixaService, EntradaFixaService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

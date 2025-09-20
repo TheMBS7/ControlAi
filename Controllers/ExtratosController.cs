@@ -16,6 +16,7 @@ namespace WebAPI.Controllers
         public ExtratosController(ApplicationDbContext context)
         {
             _context = context;
+            //verificar se não é mais facil injetar o FromServices aqui direto
         }
 
         [HttpPost("Create-Extratos")]
@@ -33,57 +34,40 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("Edit/{id}")]
-        public async Task<IActionResult> EditarExtrato(int id, ExtratoEditModel model)
+        public async Task<IActionResult> EditarExtrato(int id, ExtratoEditModel model, [FromServices] IExtratoService extratoService)
         {
 
-            Extrato? extrato = await _context.Extratos.FirstOrDefaultAsync(i => i.Id == id);
+            var extratoAtualizado = await extratoService.EditarExtratoAsync(id, model);
 
-            if (extrato == null)
+            if (extratoAtualizado == null)
             {
                 return NotFound("Extrato não encontrado.");
             }
 
-            extrato.Descricao = model.Descricao;
-            extrato.ValorTotal = model.Valor;
-            extrato.Data = model.Data;
-            extrato.NumeroMaxParcelas = model.NumeroMaxParcelas;
-            extrato.NumeroParcela = model.NumeroParcela;
-            extrato.CategoriaId = model.CategoriaId;
-            extrato.PessoaId = model.PessoaId;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(extrato);
+            return Ok(extratoAtualizado);
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarExtrato(int id)
+        public async Task<IActionResult> DeletarExtrato(int id, [FromServices] IExtratoService extratoService)
         {
-            var extrato = await _context.Extratos.FindAsync(id);
+            var resultadoDelete = await extratoService.ExcluirExtratoAsync(id);
 
-            if (extrato == null)
+            if (resultadoDelete == null)
                 return NotFound("Extrato não encontrada.");
-
-            _context.Extratos.Remove(extrato);
-            await _context.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpGet("Display-Extratos")]
-        public async Task<IActionResult> ExibirExtratos()
+        public async Task<IActionResult> ExibirExtratos([FromServices] IExtratoService extratoService)
         {
-            var extratos = await _context.Extratos
-                .Include(e => e.Categoria)
-                .Include(e => e.Pessoa)
-                .Include(e => e.Mes)
-                .OrderBy(e => e.Data)
-                .ToListAsync();
+            var extratos = await extratoService.MostrarExtratosAsync();
+
+            if (!extratos.Any())
+                return NotFound("Nenhum extrato encontrado.");
 
             return Ok(extratos);
         }
-
-
 
     }
 }

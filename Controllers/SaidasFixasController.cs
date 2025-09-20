@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
@@ -18,87 +19,56 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create-SaidasFixas")]
-        public async Task<IActionResult> CriarSaidasFixas(SaidaFixaCreateModel model)
+        public async Task<IActionResult> CriarSaidasFixas(SaidaFixaCreateModel model, [FromServices] ISaidaFixaService saidaFixaService)
         {
-            var repeteDescricao = await _context.SaidasFixas.FirstOrDefaultAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
-            var categoria = await _context.Categorias.FindAsync(model.CategoriaId);
+            SaidaFixaDTO? saidaFixaCriada = await saidaFixaService.CriarSaidaFixaAsync(model);
 
-            if (categoria == null)
-                return NotFound("Categoria não encontrada.");
+            // if (categoria == null)
+            //     return NotFound("Categoria não encontrada.");
 
-            if (repeteDescricao != null)
+            // if (repeteDescricao != null)
+            // {
+            //     return BadRequest("Descrição repetida.");
+            // }
+            if (saidaFixaCriada == null)
             {
-                return BadRequest("Descrição repetida.");
+                return BadRequest("Erro ao criar saída fixa");
             }
 
-            var novaSaidaFixa = new SaidaFixa
-            {
-                Descricao = model.Descricao,
-                Valor = model.Valor,
-                DataVencimento = model.DataVencimento,
-                Categoria = categoria
-            };
-
-            _context.SaidasFixas.Add(novaSaidaFixa);
-            await _context.SaveChangesAsync();
-
-            return Ok(novaSaidaFixa);
+            return Ok(saidaFixaCriada);
         }
 
         [HttpPut("Edit/{id}")]
-        public async Task<IActionResult> EditarSaidaFixa(int id, SaidaFixaEditModel model)
+        public async Task<IActionResult> EditarSaidaFixa(int id, SaidaFixaEditModel model, [FromServices] ISaidaFixaService saidaFixaService)
         {
 
-            SaidaFixa? saidaFixa = await _context.SaidasFixas.FirstOrDefaultAsync(i => i.Id == id);
+            SaidaFixaDTO? saidaFixaEditada = await saidaFixaService.EditarSaidaFixaAsync(id, model);
 
-            if (saidaFixa == null)
+            if (saidaFixaEditada == null)
             {
-                return NotFound("Saída não encontrado.");
+                return BadRequest("Erro ao editar Saida Fixa");
             }
 
-            // Verifica se a descrição já está em uso
-            if (model.Descricao != saidaFixa.Descricao)
-            {
-                var descricaoExiste = await _context.SaidasFixas.AnyAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
-                if (descricaoExiste)
-                {
-                    return BadRequest("Saída já existente.");
-                }
-            }
-
-            saidaFixa.Descricao = model.Descricao;
-            saidaFixa.Valor = model.Valor;
-            saidaFixa.DataVencimento = model.DataVencimento;
-            saidaFixa.CategoriaId = model.CategoriaId;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(saidaFixa);
+            return Ok(saidaFixaEditada);
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarSaidaFixa(int id)
+        public async Task<IActionResult> DeletarSaidaFixa(int id, [FromServices] ISaidaFixaService saidaFixaService)
         {
-            var saidaFixa = await _context.SaidasFixas.FindAsync(id);
+            bool resultadoDelete = await saidaFixaService.ExcluirSaidaFixaAsync(id);
 
-            if (saidaFixa == null)
+            if (!resultadoDelete)
                 return NotFound("Saída não encontrada.");
-
-            _context.SaidasFixas.Remove(saidaFixa);
-            await _context.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpGet("Display-SaidasFixas")]
-        public async Task<IActionResult> ExibirSaidasFixas()
+        public async Task<IActionResult> ExibirSaidasFixas([FromServices] ISaidaFixaService saidaFixaService)
         {
-            var saidaFixas = await _context.SaidasFixas
-            .Include(e => e.Categoria)
-            .OrderBy(saidaFixa => saidaFixa.DataVencimento)
-            .ToListAsync();
+            IEnumerable<SaidaFixaDTO> saidasFixas = await saidaFixaService.MostrarSaidasFixasAsync();
 
-            return Ok(saidaFixas);
+            return Ok(saidasFixas);
         }
 
     }

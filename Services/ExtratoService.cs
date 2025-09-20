@@ -1,4 +1,6 @@
 using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using WebAPI.Data;
 using WebAPI.Entities;
@@ -69,5 +71,53 @@ public class ExtratoService : IExtratoService
         return await _context.Meses.FindAsync(proximoMesId);
     }
 
+    public async Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model)
+    {
+        var extrato = await _context.Extratos.FirstOrDefaultAsync(i => i.Id == id);
 
+        if (extrato == null) return null;
+
+        extrato.Descricao = model.Descricao;
+        extrato.ValorTotal = model.Valor;
+        extrato.Data = model.Data;
+        extrato.NumeroMaxParcelas = model.NumeroMaxParcelas;
+        extrato.NumeroParcela = model.NumeroParcela;
+        extrato.CategoriaId = model.CategoriaId;
+        extrato.PessoaId = model.PessoaId;
+
+        await _context.SaveChangesAsync();
+
+        return ExtratoDTO.Map(extrato);
+    }
+
+    public async Task<bool?> ExcluirExtratoAsync(int id) //verificar se ? é a melhor alternativa para esses casos
+    {
+        var extrato = await _context.Extratos.FindAsync(id);
+
+        if (extrato == null) return false;
+
+        _context.Extratos.Remove(extrato);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<IEnumerable<ExtratoDTO>> MostrarExtratosAsync()
+    {
+        List<Extrato> extratosEncontrados = await _context.Extratos
+            .Include(e => e.Categoria)
+            .Include(e => e.Pessoa)
+            .Include(e => e.Mes)
+            .OrderBy(e => e.Data)
+            .ToListAsync();
+
+        List<ExtratoDTO> extratosExistentes = new List<ExtratoDTO>();
+        foreach (Extrato extrato in extratosEncontrados)
+        {
+            ExtratoDTO extratoDTO = ExtratoDTO.Map(extrato);
+            extratosExistentes.Add(extratoDTO);
+        }
+
+        return extratosExistentes;
+    }
 }

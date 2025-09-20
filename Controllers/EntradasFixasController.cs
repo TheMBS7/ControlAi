@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
@@ -18,78 +19,48 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create-EntradasFixas")]
-        public async Task<IActionResult> CriarEntradasFixas(EntradaFixaCreateModel model)
+        public async Task<IActionResult> CriarEntradasFixas(EntradaFixaCreateModel model, [FromServices] IEntradaFixaService entradaFixaService)
         {
-            var repeteDescricao = await _context.EntradasFixas.FirstOrDefaultAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
+            EntradaFixaDTO? entradaFixaCriada = await entradaFixaService.CriarEntradaFixaAsync(model);
 
-            if (repeteDescricao != null)
+            if (entradaFixaCriada == null)
             {
-                return BadRequest("Descrição repetida.");
+                return BadRequest("Erro ao criar entrada fixa.");
             }
 
-            var novaEntradaFixa = new EntradaFixa
-            {
-                Descricao = model.Descricao,
-                Valor = model.Valor,
-                DataReferencia = model.DataReferencia
-            };
-
-            _context.EntradasFixas.Add(novaEntradaFixa);
-            await _context.SaveChangesAsync();
-
-            return Ok(novaEntradaFixa);
+            return Ok(entradaFixaCriada);
         }
 
         [HttpPut("Edit/{id}")]
-        public async Task<IActionResult> EditarEntradaFixa(int id, EntradaFixaEditModel model)
+        public async Task<IActionResult> EditarEntradaFixa(int id, EntradaFixaEditModel model, [FromServices] IEntradaFixaService entradaFixaService)
         {
+            EntradaFixaDTO? entradaFixaEditada = await entradaFixaService.EditarEntradaFixaAsync(id, model);
 
-            EntradaFixa? entradaFixa = await _context.EntradasFixas.FirstOrDefaultAsync(i => i.Id == id);
-
-            if (entradaFixa == null)
+            if (entradaFixaEditada == null)
             {
-                return NotFound("Entrada não encontrado.");
+                return BadRequest("Erro ao editar entrada fixa.");
             }
 
-            // Verifica se a descrição já está em uso
-            if (model.Descricao != entradaFixa.Descricao)
-            {
-                var descricaoExiste = await _context.EntradasFixas.AnyAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
-                if (descricaoExiste)
-                {
-                    return BadRequest("Entrada já existente.");
-                }
-            }
-
-            entradaFixa.Descricao = model.Descricao;
-            entradaFixa.Valor = model.Valor;
-            entradaFixa.DataReferencia = model.DataReferencia;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(entradaFixa);
+            return Ok(entradaFixaEditada);
         }
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarEntradaFixa(int id)
+        public async Task<IActionResult> DeletarEntradaFixa(int id, [FromServices] IEntradaFixaService entradaFixaService)
         {
-            var entradaFixa = await _context.EntradasFixas.FindAsync(id);
+            bool resultadoDelete = await entradaFixaService.ExcluirEntradaFixaAsync(id);
 
-            if (entradaFixa == null)
-                return NotFound("Entrada não encontrada.");
+            if (!resultadoDelete)
+            {
+                BadRequest("Erro ao excluir entrada fixa.");
+            }
 
-            _context.EntradasFixas.Remove(entradaFixa);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Excluído com sucesso" });
+            return Ok(new { message = "Entrada fixa excluída com sucesso" });
 
         }
 
         [HttpGet("Display-EntradasFixas")]
-        public async Task<IActionResult> ExibirEntradasFixas()
+        public async Task<IActionResult> ExibirEntradasFixas([FromServices] IEntradaFixaService entradaFixaService)
         {
-            var entradaFixas = await _context.EntradasFixas
-                .OrderBy(entradaFixa => entradaFixa.DataReferencia)
-                .ToListAsync();
+            IEnumerable<EntradaFixaDTO> entradaFixas = await entradaFixaService.MostrarEntradasFixasAsync();
 
             return Ok(entradaFixas);
         }

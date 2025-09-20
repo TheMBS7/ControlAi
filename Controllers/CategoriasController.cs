@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Controllers
 {
@@ -18,79 +19,55 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("Create-Categoria")]
-        public async Task<IActionResult> CriarCategoria(CategoriaCreateModel model)
+        public async Task<IActionResult> CriarCategoria(CategoriaCreateModel model, [FromServices] ICategoriaService categoriaService)
         {
-            var repeteCategoria = await _context.Categorias.FirstOrDefaultAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
+            var categoriaCriada = await categoriaService.CriarCategoriaAsync(model);
 
-            if (repeteCategoria != null)
+            if (categoriaCriada == null)
             {
-                return BadRequest("Categoria repetida.");
+                return BadRequest("Pessoa já existe.");
             }
 
-            var novaCategoria = new Categoria
-            {
-                Nome = model.Nome
-            };
-
-            _context.Categorias.Add(novaCategoria);
-            await _context.SaveChangesAsync();
-
-            return Ok(novaCategoria);
+            return Ok(categoriaCriada);
         }
 
         [HttpPut("Edit/{id}")]
-        public async Task<IActionResult> EditarCategoria(int id, CategoriaEditModel model)
+        public async Task<IActionResult> EditarCategoria(int id, CategoriaEditModel model, [FromServices] ICategoriaService categoriaService)
         {
+            var categoriaEditada = await categoriaService.EditarCategoriaAsync(id, model);
 
-            Categoria? categoria = await _context.Categorias.FirstOrDefaultAsync(i => i.Id == id);
-
-            if (categoria == null)
+            if (categoriaEditada == null)
             {
-                return NotFound("Categoria não encontrado.");
+                return BadRequest("Erro ao editar pessoa");
             }
 
-            // Verifica se a descrição já está em uso
-            if (model.Nome != categoria.Nome)
-            {
-                var nomeExiste = await _context.Categorias.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
-                if (nomeExiste)
-                {
-                    return BadRequest("Categoria já existente.");
-                }
-            }
-
-            categoria.Nome = model.Nome;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(categoria);
+            return Ok(categoriaEditada);
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarCategoria(int id)
+        public async Task<IActionResult> DeletarCategoria(int id, [FromServices] ICategoriaService categoriaService)
         {
-            var categoria = await _context.Categorias.FindAsync(id);
-            var existeSaida = await _context.SaidasFixas.AnyAsync(saidaFixa => saidaFixa.CategoriaId == id);
+            bool? resultadoDelete = await categoriaService.ExcluirCategoriaAsync(id);
 
-            if (existeSaida)
+            if (resultadoDelete == false)
+            {
                 return BadRequest("Ops! Esta categoria está vinculada a uma ou mais saídas e, por isso, não pode ser excluída.");
+            }
 
-            if (categoria == null)
-                return NotFound("Categoria não encontrada.");
+            if (resultadoDelete == null)
+            {
+                return BadRequest();
+            }
 
-            _context.Categorias.Remove(categoria);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { mensagem = "Categoria excluída com sucesso!" });
+            return Ok();
         }
 
         [HttpGet("Display-Categorias")]
-        public async Task<IActionResult> ExibirCategorias()
+        public async Task<IActionResult> ExibirCategorias([FromServices] ICategoriaService categoriaService)
         {
-            var categorias = await _context.Categorias.ToListAsync();
+            var categorias = await categoriaService.MostrarCategoriasAsync();
 
             return Ok(categorias);
         }
-
     }
 }

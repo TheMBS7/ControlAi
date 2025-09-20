@@ -6,6 +6,9 @@ namespace WebAPI.Services.Interfaces;
 public interface IExtratoService
 {
     public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoCreateModel model);
+    public Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model);
+    public Task<bool?> ExcluirExtratoAsync(int id);
+    public Task<IEnumerable<ExtratoDTO>> MostrarExtratosAsync();
 }
 
 public record ExtratoDTO(int Id, string Descricao, decimal ValorTotal, DateTime Data, int NumeroMaxParcelas, int NumeroParcela, int CategoriaId, int PessoaId, int MesId)
