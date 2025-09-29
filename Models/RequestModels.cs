@@ -13,9 +13,12 @@ public record SaidaFixaCreateModel([Required] string Descricao, [Required] decim
 public record PessoaCreateModel([Required] string Nome);
 public record ExtratoCreateModel([Required(ErrorMessage = "A descrição é obrigatória.")] string Descricao, [Required] decimal ValorTotal, [Required] DateTime Data, [Required][Range(1, int.MaxValue, ErrorMessage = "Número de parcelas inválido.")] int NumeroParcela, int NumeroMaxParcelas, [Required] int CategoriaId, [Required] int PessoaId, int MesId);
 
-//Ediçãodo
+//Edição
 public record CategoriaEditModel(string Nome);
 public record EntradaFixaEditModel(string Descricao, decimal Valor, DateTime DataReferencia);
 public record SaidaFixaEditModel(string Descricao, decimal Valor, DateTime DataVencimento, int CategoriaId);
 public record PessoaEditModel(string Nome);
-public record ExtratoEditModel(string Descricao, decimal Valor, DateTime Data, [Range(1, int.MaxValue, ErrorMessage = "Número de parcelas inválido.")] int NumeroParcela, int NumeroMaxParcelas, int CategoriaId, int PessoaId);
+public record ExtratoEditModel(string Descricao, decimal ValorTotal, DateTime Data, [Range(1, int.MaxValue, ErrorMessage = "Número de parcelas inválido.")] int NumeroParcela, int NumeroMaxParcelas, int CategoriaId, int PessoaId);
+
+//Exclusão
+public record ExtratoDeleteModel(bool ExcluirParcelas);

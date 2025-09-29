@@ -30,6 +30,7 @@ public class ExtratoService : IExtratoService
             return Enumerable.Empty<ExtratoDTO>();
 
         var mesAtual = mesInicial;
+        Guid idParcelas = Guid.NewGuid();
 
         for (int i = 1; i <= model.NumeroMaxParcelas; i++)
         {
@@ -42,6 +43,7 @@ public class ExtratoService : IExtratoService
                 Data = model.Data,
                 NumeroMaxParcelas = model.NumeroMaxParcelas,
                 NumeroParcela = i,
+                IdParcelas = idParcelas,
                 Categoria = categoria,
                 Pessoa = pessoa,
                 Mes = mesAtual
@@ -78,7 +80,7 @@ public class ExtratoService : IExtratoService
         if (extrato == null) return null;
 
         extrato.Descricao = model.Descricao;
-        extrato.ValorTotal = model.Valor;
+        extrato.ValorTotal = model.ValorTotal;
         extrato.Data = model.Data;
         extrato.NumeroMaxParcelas = model.NumeroMaxParcelas;
         extrato.NumeroParcela = model.NumeroParcela;
@@ -90,12 +92,26 @@ public class ExtratoService : IExtratoService
         return ExtratoDTO.Map(extrato);
     }
 
-    public async Task<bool?> ExcluirExtratoAsync(int id) //verificar se ? é a melhor alternativa para esses casos
+    public async Task<bool?> ExcluirExtratoAsync(int id, ExtratoDeleteModel model) //verificar se ? é a melhor alternativa para esses casos
     {
-        var extrato = await _context.Extratos.FindAsync(id);
+        Extrato? extrato = await _context.Extratos.FindAsync(id);
 
         if (extrato == null) return false;
 
+        if (model.ExcluirParcelas) //verifica se selecionou o campo de excluir todas
+        {
+            List<Extrato> listaExtratos = await _context.Extratos
+                .Where(i => i.IdParcelas == extrato.IdParcelas)
+                .ToListAsync();
+            Console.WriteLine($"Qtd retornada: {listaExtratos.Count} =================================================================================");
+            if (!listaExtratos.Any()) return null;
+
+            _context.Extratos.RemoveRange(listaExtratos);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+        Console.WriteLine("TESTEEEEE-----------------------------------------------------------------------------------");
         _context.Extratos.Remove(extrato);
         await _context.SaveChangesAsync();
 

@@ -48,9 +48,9 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeletarExtrato(int id, [FromServices] IExtratoService extratoService)
+        public async Task<IActionResult> DeletarExtrato(int id, ExtratoDeleteModel model, [FromServices] IExtratoService extratoService)
         {
-            var resultadoDelete = await extratoService.ExcluirExtratoAsync(id);
+            var resultadoDelete = await extratoService.ExcluirExtratoAsync(id, model);
 
             if (resultadoDelete == null)
                 return NotFound("Extrato não encontrada.");
