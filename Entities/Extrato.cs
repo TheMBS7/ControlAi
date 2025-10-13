@@ -15,7 +15,8 @@ namespace WebAPI.Entities
         public Pessoa Pessoa { get; set; } = default!;
         public int MesId { get; set; }
         public Mes Mes { get; set; } = default!;
-
+        public int TipoMovimentoId { get; set; }
+        public TipoMovimento TipoMovimento { get; set; } = default!;
 
     }
 }

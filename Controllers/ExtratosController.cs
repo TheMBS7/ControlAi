@@ -69,5 +69,15 @@ namespace WebAPI.Controllers
             return Ok(extratos);
         }
 
+        [HttpGet("Display-Extrato/{mesId}")]
+        public async Task<IActionResult> ExibirExtratoId(int mesId, [FromServices] IExtratoService extratoService)
+        {
+            var extrato = await extratoService.MostrarExtratoIdAsync(mesId);
+
+            // if (!extrato.Any())
+            //     return NotFound("Nenhum extrato encontrado.");
+
+            return Ok(extrato);
+        }
     }
 }

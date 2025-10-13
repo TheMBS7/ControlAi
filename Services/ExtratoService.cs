@@ -1,7 +1,4 @@
-using System.Reflection.Metadata;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using WebAPI.Data;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
@@ -20,13 +17,14 @@ public class ExtratoService : IExtratoService
 
     public async Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoCreateModel model)
     {
-        var categoria = await _context.Categorias.FindAsync(model.CategoriaId);
-        var pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
-        var mesInicial = await _context.Meses.FindAsync(model.MesId);
-        var novosExtratos = new List<Extrato>();
-        //var periodoAtual = mes;
+        Categoria? categoria = await _context.Categorias.FindAsync(model.CategoriaId);
+        Pessoa? pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
+        Mes? mesInicial = await _context.Meses.FindAsync(model.MesId);
+        TipoMovimento? tipoMovimento = await _context.TiposMovimentos.FindAsync(model.TipoMovimentoId);
+        List<Extrato> novosExtratos = new List<Extrato>();
 
-        if (categoria == null || pessoa == null || mesInicial == null)
+
+        if (categoria == null || pessoa == null || mesInicial == null || tipoMovimento == null)
             return Enumerable.Empty<ExtratoDTO>();
 
         var mesAtual = mesInicial;
@@ -46,7 +44,8 @@ public class ExtratoService : IExtratoService
                 IdParcelas = idParcelas,
                 Categoria = categoria,
                 Pessoa = pessoa,
-                Mes = mesAtual
+                Mes = mesAtual,
+                TipoMovimento = tipoMovimento
             };
 
             novosExtratos.Add(extrato);
@@ -103,7 +102,7 @@ public class ExtratoService : IExtratoService
             List<Extrato> listaExtratos = await _context.Extratos
                 .Where(i => i.IdParcelas == extrato.IdParcelas)
                 .ToListAsync();
-            Console.WriteLine($"Qtd retornada: {listaExtratos.Count} =================================================================================");
+
             if (!listaExtratos.Any()) return null;
 
             _context.Extratos.RemoveRange(listaExtratos);
@@ -111,7 +110,7 @@ public class ExtratoService : IExtratoService
 
             return true;
         }
-        Console.WriteLine("TESTEEEEE-----------------------------------------------------------------------------------");
+
         _context.Extratos.Remove(extrato);
         await _context.SaveChangesAsync();
 
@@ -135,5 +134,25 @@ public class ExtratoService : IExtratoService
         }
 
         return extratosExistentes;
+    }
+
+    public async Task<IEnumerable<ExtratoDTO>> MostrarExtratoIdAsync(int mesId)
+    {
+        List<Extrato> extratoEncontrado = await _context.Extratos
+            .Include(e => e.Categoria)
+            .Include(e => e.Pessoa)
+            .Include(e => e.Mes)
+            .Where(e => e.MesId == mesId)
+            .OrderBy(e => e.Data)
+            .ToListAsync();
+
+        List<ExtratoDTO> extratoExistente = new List<ExtratoDTO>();
+        foreach (Extrato extrato in extratoEncontrado)
+        {
+            ExtratoDTO extratoDTO = ExtratoDTO.Map(extrato);
+            extratoExistente.Add(extratoDTO);
+        }
+
+        return extratoExistente;
     }
 }

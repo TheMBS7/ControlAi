@@ -18,6 +18,8 @@ builder.Services.AddScoped<IPessoaService, PessoaService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<ISaidaFixaService, SaidaFixaService>();
 builder.Services.AddScoped<IEntradaFixaService, EntradaFixaService>();
+builder.Services.AddScoped<IMesService, MesService>();
+builder.Services.AddScoped<ITipoMovimentoService, TipoMovimentoService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

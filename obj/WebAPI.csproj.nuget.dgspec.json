@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projetos\\ControlAi\\WebAPI\\WebAPI.csproj": {}
+    "C:\\Projetos\\ControlAi\\webapi\\WebAPI.csproj": {}
   },
   "projects": {
-    "C:\\Projetos\\ControlAi\\WebAPI\\WebAPI.csproj": {
+    "C:\\Projetos\\ControlAi\\webapi\\WebAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projetos\\ControlAi\\WebAPI\\WebAPI.csproj",
+        "projectUniqueName": "C:\\Projetos\\ControlAi\\webapi\\WebAPI.csproj",
         "projectName": "WebAPI",
-        "projectPath": "C:\\Projetos\\ControlAi\\WebAPI\\WebAPI.csproj",
+        "projectPath": "C:\\Projetos\\ControlAi\\webapi\\WebAPI.csproj",
         "packagesPath": "C:\\Users\\mathe\\.nuget\\packages\\",
-        "outputPath": "C:\\Projetos\\ControlAi\\WebAPI\\obj\\",
+        "outputPath": "C:\\Projetos\\ControlAi\\webapi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mathe\\AppData\\Roaming\\NuGet\\NuGet.Config"

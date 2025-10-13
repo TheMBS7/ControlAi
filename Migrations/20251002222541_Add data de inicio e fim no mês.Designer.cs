@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebAPI.Data;
@@ -11,9 +12,11 @@ using WebAPI.Data;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251002222541_Add data de inicio e fim no mês")]
+    partial class Adddatadeinicioefimnomês
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,9 +98,6 @@ namespace WebAPI.Migrations
                     b.Property<int>("PessoaId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TipoMovimentoId")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("numeric");
 
@@ -108,8 +108,6 @@ namespace WebAPI.Migrations
                     b.HasIndex("MesId");
 
                     b.HasIndex("PessoaId");
-
-                    b.HasIndex("TipoMovimentoId");
 
                     b.ToTable("Extratos");
                 });
@@ -182,23 +180,6 @@ namespace WebAPI.Migrations
                     b.ToTable("SaidasFixas");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.TipoMovimento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TiposMovimentos");
-                });
-
             modelBuilder.Entity("WebAPI.Entities.Extrato", b =>
                 {
                     b.HasOne("WebAPI.Entities.Categoria", "Categoria")
@@ -219,19 +200,11 @@ namespace WebAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebAPI.Entities.TipoMovimento", "TipoMovimento")
-                        .WithMany()
-                        .HasForeignKey("TipoMovimentoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Categoria");
 
                     b.Navigation("Mes");
 
                     b.Navigation("Pessoa");
-
-                    b.Navigation("TipoMovimento");
                 });
 
             modelBuilder.Entity("WebAPI.Entities.SaidaFixa", b =>

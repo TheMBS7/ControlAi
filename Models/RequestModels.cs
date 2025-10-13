@@ -11,7 +11,7 @@ public record CategoriaCreateModel([Required] string Nome);
 public record EntradaFixaCreateModel([Required(ErrorMessage = "A descrição é obrigatória.")] string Descricao, [Required] decimal Valor, [Required] DateTime DataReferencia);
 public record SaidaFixaCreateModel([Required] string Descricao, [Required] decimal Valor, [Required] DateTime DataVencimento, [Required] int CategoriaId);
 public record PessoaCreateModel([Required] string Nome);
-public record ExtratoCreateModel([Required(ErrorMessage = "A descrição é obrigatória.")] string Descricao, [Required] decimal ValorTotal, [Required] DateTime Data, [Required][Range(1, int.MaxValue, ErrorMessage = "Número de parcelas inválido.")] int NumeroParcela, int NumeroMaxParcelas, [Required] int CategoriaId, [Required] int PessoaId, int MesId);
+public record ExtratoCreateModel([Required(ErrorMessage = "A descrição é obrigatória.")] string Descricao, [Required] decimal ValorTotal, [Required] DateTime Data, [Required][Range(1, int.MaxValue, ErrorMessage = "Número de parcelas inválido.")] int NumeroParcela, int NumeroMaxParcelas, [Required] int CategoriaId, [Required] int PessoaId, int MesId, int TipoMovimentoId);
 
 //Edição
 public record CategoriaEditModel(string Nome);
