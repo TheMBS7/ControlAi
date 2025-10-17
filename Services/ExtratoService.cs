@@ -155,4 +155,61 @@ public class ExtratoService : IExtratoService
 
         return extratoExistente;
     }
+
+    public async Task<IEnumerable<TotalPeriodo>> CalcularTotalAnoAsync(int ano)
+    {
+        List<Mes> mesesEncontrados = await _context.Meses
+            .Where(m => m.DataInicial.Year == ano)
+            .ToListAsync();
+
+        List<TotalPeriodo> valoresTotais = new List<TotalPeriodo>();
+
+        foreach (Mes mes in mesesEncontrados)
+        {
+            List<Extrato> extratosFiltrados = await _context.Extratos
+                .Where(e => e.MesId == mes.Id)
+                .ToListAsync();
+
+            decimal totalMes = 0;
+
+            foreach (Extrato extrato in extratosFiltrados)
+            {
+                if (extrato.TipoMovimentoId == 1)
+                {
+                    totalMes += extrato.ValorTotal;
+                }
+                else
+                {
+                    totalMes -= extrato.ValorTotal;
+                }
+            }
+
+            valoresTotais.Add(new TotalPeriodo(mes.Id, totalMes));
+        }
+
+        return valoresTotais;
+    }
+
+    public async Task<TotalPeriodo> CalcularTotalMesIdAsync(int id)
+    {
+        List<Extrato> extratosEncontrados = await _context.Extratos
+            .Where(e => e.MesId == id)
+            .ToListAsync();
+
+        decimal totalMes = 0;
+
+        foreach (Extrato extrato in extratosEncontrados)
+        {
+            if (extrato.TipoMovimentoId == 1)
+            {
+                totalMes += extrato.ValorTotal;
+            }
+            else
+            {
+                totalMes -= extrato.ValorTotal;
+            }
+        }
+
+        return new TotalPeriodo(id, totalMes);
+    }
 }

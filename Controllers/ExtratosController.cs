@@ -79,5 +79,21 @@ namespace WebAPI.Controllers
 
             return Ok(extrato);
         }
+
+        [HttpGet("Display-Total/{ano}")]
+        public async Task<IActionResult> ExibirTotalAno(int ano, [FromServices] IExtratoService extratoService)
+        {
+            var valoresTotais = await extratoService.CalcularTotalAnoAsync(ano);
+
+            return Ok(valoresTotais);
+        }
+
+        [HttpGet("Display-Total-Mes/{id}")]
+        public async Task<IActionResult> ExibirTotalMes(int id, [FromServices] IExtratoService extratoService)
+        {
+            var valorTotal = await extratoService.CalcularTotalMesIdAsync(id);
+
+            return Ok(valorTotal);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using WebAPI.Entities;
 using WebAPI.RequestModels;
+using static WebAPI.Services.ExtratoService;
 
 namespace WebAPI.Services.Interfaces;
 
@@ -10,8 +11,11 @@ public interface IExtratoService
     public Task<bool?> ExcluirExtratoAsync(int id, ExtratoDeleteModel model);
     public Task<IEnumerable<ExtratoDTO>> MostrarExtratosAsync();
     public Task<IEnumerable<ExtratoDTO>> MostrarExtratoIdAsync(int mesId);
+    public Task<IEnumerable<TotalPeriodo>> CalcularTotalAnoAsync(int ano);
+    public Task<TotalPeriodo> CalcularTotalMesIdAsync(int id);
 }
 
+public record TotalPeriodo(int MesId, decimal TotalMes);
 public record ExtratoDTO(int Id, string Descricao, decimal ValorTotal, DateTime Data, int NumeroMaxParcelas, int NumeroParcela, Guid IdParcelas, int CategoriaId, int PessoaId, int MesId, int TipoMovimentoId)
 {
     public static ExtratoDTO Map(Extrato extrato)
