@@ -23,13 +23,6 @@ namespace WebAPI.Controllers
         {
             SaidaFixaDTO? saidaFixaCriada = await saidaFixaService.CriarSaidaFixaAsync(model);
 
-            // if (categoria == null)
-            //     return NotFound("Categoria não encontrada.");
-
-            // if (repeteDescricao != null)
-            // {
-            //     return BadRequest("Descrição repetida.");
-            // }
             if (saidaFixaCriada == null)
             {
                 return BadRequest("Erro ao criar saída fixa");

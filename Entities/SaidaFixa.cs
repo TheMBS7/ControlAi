@@ -8,5 +8,7 @@ namespace WebAPI.Entities
         public DateTime DataVencimento { get; set; }
         public int CategoriaId { get; set; }
         public Categoria Categoria { get; set; } = default!;
+        public int PessoaId { get; set; }
+        public Pessoa Pessoa { get; set; } = default!;
     }
 }

@@ -15,6 +15,65 @@ public class ExtratoService : IExtratoService
         _context = context;
     }
 
+    public async Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoFixoCreateModel model)
+    {
+        Categoria? categoria = await _context.Categorias.FindAsync(model.CategoriaId);
+        Pessoa? pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
+        DateTime dataTratada = new DateTime(model.Data.Year, model.Data.Month, 1, 0, 0, 0, DateTimeKind.Utc); // verificar de remover a hora do banco
+        TipoMovimento? tipoMovimento = await _context.TiposMovimentos.FindAsync(2);
+        List<Extrato> novosExtratos = new List<Extrato>();
+
+        if (categoria == null || pessoa == null || tipoMovimento == null)
+        {
+            return Enumerable.Empty<ExtratoDTO>();
+        }
+
+        int quantidadeMeses = await _context.Meses.CountAsync(m => m.DataInicial > dataTratada);
+
+        Mes? mesInicial = await _context.Meses
+            .FirstOrDefaultAsync(m => m.DataInicial.Date == dataTratada.Date);
+
+
+        Mes? mesAtual = mesInicial;
+        DateTime dataAtual = model.Data;
+        Guid idParcelas = Guid.NewGuid();
+
+        for (int i = 1; i <= quantidadeMeses; i++)
+        {
+            if (mesAtual == null) break;
+
+            Extrato extrato = new Extrato
+            {
+                Descricao = model.Descricao,
+                ValorTotal = model.ValorTotal,
+                Data = dataAtual,
+                NumeroMaxParcelas = 1,
+                NumeroParcela = 1,
+                IdParcelas = idParcelas,
+                Categoria = categoria,
+                Pessoa = pessoa,
+                Mes = mesAtual,
+                TipoMovimento = tipoMovimento
+            };
+
+            novosExtratos.Add(extrato);
+            mesAtual = await ObterProximoMesAsync(mesAtual);
+            dataAtual = LidarProximaData(dataAtual);
+        }
+        _context.Extratos.AddRange(novosExtratos);
+        await _context.SaveChangesAsync();
+
+        List<ExtratoDTO> extratosCriados = new List<ExtratoDTO>();
+        foreach (Extrato extrato in novosExtratos)
+        {
+            ExtratoDTO extratoDTO = ExtratoDTO.Map(extrato);
+            extratosCriados.Add(extratoDTO);
+        }
+
+        return extratosCriados;
+    }
+
+
     public async Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoCreateModel model)
     {
         Categoria? categoria = await _context.Categorias.FindAsync(model.CategoriaId);
@@ -27,18 +86,19 @@ public class ExtratoService : IExtratoService
         if (categoria == null || pessoa == null || mesInicial == null || tipoMovimento == null)
             return Enumerable.Empty<ExtratoDTO>();
 
-        var mesAtual = mesInicial;
+        Mes? mesAtual = mesInicial;
         Guid idParcelas = Guid.NewGuid();
+        DateTime dataAtual = model.Data;
 
         for (int i = 1; i <= model.NumeroMaxParcelas; i++)
         {
             if (mesAtual == null) break;
 
-            var extrato = new Extrato
+            Extrato extrato = new Extrato
             {
                 Descricao = model.Descricao,
                 ValorTotal = model.ValorTotal,
-                Data = model.Data,
+                Data = dataAtual,
                 NumeroMaxParcelas = model.NumeroMaxParcelas,
                 NumeroParcela = i,
                 IdParcelas = idParcelas,
@@ -50,6 +110,7 @@ public class ExtratoService : IExtratoService
 
             novosExtratos.Add(extrato);
             mesAtual = await ObterProximoMesAsync(mesAtual);
+            dataAtual = LidarProximaData(dataAtual); //verificar alternativa
         }
 
         _context.Extratos.AddRange(novosExtratos);
@@ -65,16 +126,23 @@ public class ExtratoService : IExtratoService
         return extratosCriados;
     }
 
+    private DateTime LidarProximaData(DateTime dataAtual)
+    {
+        DateTime proximaData = dataAtual.AddMonths(1);
+
+        return proximaData;
+    }
     private async Task<Mes?> ObterProximoMesAsync(Mes mesAtual)
     {
-        var proximoMesId = mesAtual.Id + 1;
-
-        return await _context.Meses.FindAsync(proximoMesId);
+        return await _context.Meses
+            .Where(m => m.DataInicial > mesAtual.DataInicial)
+            .OrderBy(m => m.DataInicial)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model)
     {
-        var extrato = await _context.Extratos.FirstOrDefaultAsync(i => i.Id == id);
+        Extrato? extrato = await _context.Extratos.FirstOrDefaultAsync(i => i.Id == id);
 
         if (extrato == null) return null;
 

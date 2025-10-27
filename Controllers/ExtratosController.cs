@@ -16,7 +16,6 @@ namespace WebAPI.Controllers
         public ExtratosController(ApplicationDbContext context)
         {
             _context = context;
-            //verificar se não é mais facil injetar o FromServices aqui direto
         }
 
         [HttpPost("Create-Extratos")]

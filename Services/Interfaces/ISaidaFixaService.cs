@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using WebAPI.Entities;
 using WebAPI.RequestModels;
 
@@ -11,7 +12,7 @@ public interface ISaidaFixaService
     public Task<IEnumerable<SaidaFixaDTO>> MostrarSaidasFixasAsync();
 }
 
-public record SaidaFixaDTO(int Id, string Descricao, decimal Valor, DateTime DataVencimento, int CategoriaId)
+public record SaidaFixaDTO(int Id, string Descricao, decimal Valor, DateTime DataVencimento, int CategoriaId, int PessoaId)
 {
     public static SaidaFixaDTO Map(SaidaFixa saidaFixa)
     {
@@ -20,7 +21,8 @@ public record SaidaFixaDTO(int Id, string Descricao, decimal Valor, DateTime Dat
             saidaFixa.Descricao,
             saidaFixa.Valor,
             saidaFixa.DataVencimento,
-            saidaFixa.CategoriaId
+            saidaFixa.CategoriaId,
+            saidaFixa.PessoaId
             );
     }
 }

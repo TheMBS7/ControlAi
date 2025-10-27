@@ -17,5 +17,8 @@ namespace WebAPI.Data
         public DbSet<SaidaFixa> SaidasFixas { get; set; }
         public DbSet<Mes> Meses { get; set; }
         public DbSet<TipoMovimento> TiposMovimentos { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        => modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

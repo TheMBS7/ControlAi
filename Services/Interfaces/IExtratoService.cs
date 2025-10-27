@@ -6,6 +6,7 @@ namespace WebAPI.Services.Interfaces;
 
 public interface IExtratoService
 {
+    public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoFixoCreateModel model);
     public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoCreateModel model);
     public Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model);
     public Task<bool?> ExcluirExtratoAsync(int id, ExtratoDeleteModel model);
