@@ -17,6 +17,9 @@ namespace WebAPI.Entities
         public Mes Mes { get; set; } = default!;
         public int TipoMovimentoId { get; set; }
         public TipoMovimento TipoMovimento { get; set; } = default!;
-
+        public int? SaidaFixaId { get; set; }
+        public SaidaFixa? SaidaFixa { get; set; }
+        public int? EntradaFixaId { get; set; }
+        public EntradaFixa? EntradaFixa { get; set; }
     }
 }

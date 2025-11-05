@@ -58,6 +58,23 @@ internal class ExtratoMapping : IEntityTypeConfiguration<Extrato>
             .WithMany()
             .HasForeignKey(x => x.TipoMovimentoId)
             .IsRequired();
-    }
 
+        builder
+            .HasOne(x => x.SaidaFixa)
+            .WithMany()
+            .HasForeignKey(x => x.SaidaFixaId);
+
+        builder
+            .HasOne(x => x.EntradaFixa)
+            .WithMany()
+            .HasForeignKey(x => x.EntradaFixaId);
+
+        builder
+            .Property(x => x.SaidaFixaId)
+            .HasDefaultValue(null);
+
+        builder
+            .Property(x => x.EntradaFixaId)
+            .HasDefaultValue(null);
+    }
 }

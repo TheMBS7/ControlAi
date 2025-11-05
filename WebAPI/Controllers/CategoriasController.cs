@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         [HttpPost("Create-Categoria")]
         public async Task<IActionResult> CriarCategoria(CategoriaCreateModel model, [FromServices] ICategoriaService categoriaService)
         {
-            var categoriaCriada = await categoriaService.CriarCategoriaAsync(model);
+            CategoriaDTO? categoriaCriada = await categoriaService.CriarCategoriaAsync(model);
 
             if (categoriaCriada == null)
             {
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [HttpPut("Edit/{id}")]
         public async Task<IActionResult> EditarCategoria(int id, CategoriaEditModel model, [FromServices] ICategoriaService categoriaService)
         {
-            var categoriaEditada = await categoriaService.EditarCategoriaAsync(id, model);
+            CategoriaDTO? categoriaEditada = await categoriaService.EditarCategoriaAsync(id, model);
 
             if (categoriaEditada == null)
             {
@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Categorias")]
         public async Task<IActionResult> ExibirCategorias([FromServices] ICategoriaService categoriaService)
         {
-            var categorias = await categoriaService.MostrarCategoriasAsync();
+            IEnumerable<CategoriaDTO>? categorias = await categoriaService.MostrarCategoriasAsync();
 
             return Ok(categorias);
         }

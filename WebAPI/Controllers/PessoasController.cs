@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         [HttpPost("Create-Pessoa")]
         public async Task<IActionResult> CriarPessoas(PessoaCreateModel model, [FromServices] IPessoaService pessoaService)
         {
-            var pessoaCriada = await pessoaService.CriarPessoaAsync(model);
+            PessoaDTO? pessoaCriada = await pessoaService.CriarPessoaAsync(model);
 
             if (pessoaCriada == null)
             {
@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         [HttpPut("Edit/{id}")]
         public async Task<IActionResult> EditarPessoa(int id, PessoaEditModel model, [FromServices] IPessoaService pessoaService)
         {
-            var pessoaEditada = await pessoaService.EditarPessoaAsync(id, model);
+            PessoaDTO? pessoaEditada = await pessoaService.EditarPessoaAsync(id, model);
 
             if (pessoaEditada == null)
             {
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Pessoas")]
         public async Task<IActionResult> ExibirPessoas([FromServices] IPessoaService pessoaService)
         {
-            var pessoas = await pessoaService.MostrarPessoasAsync();
+            IEnumerable<PessoaDTO> pessoas = await pessoaService.MostrarPessoasAsync();
 
             return Ok(pessoas);
         }

@@ -17,14 +17,14 @@ public class CategoriaService : ICategoriaService
 
     public async Task<CategoriaDTO?> CriarCategoriaAsync(CategoriaCreateModel model)
     {
-        var repeteCategoria = await _context.Categorias.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
+        bool repeteCategoria = await _context.Categorias.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
 
         if (repeteCategoria)
         {
             return null;
         }
 
-        var novaCategoria = new Categoria
+        Categoria novaCategoria = new Categoria
         {
             Nome = model.Nome
         };
@@ -60,8 +60,8 @@ public class CategoriaService : ICategoriaService
     }
     public async Task<bool?> ExcluirCategoriaAsync(int id)
     {
-        var categoria = await _context.Categorias.FindAsync(id);
-        var existeSaida = await _context.SaidasFixas.AnyAsync(saidaFixa => saidaFixa.CategoriaId == id);
+        Categoria? categoria = await _context.Categorias.FindAsync(id);
+        bool existeSaida = await _context.SaidasFixas.AnyAsync(saidaFixa => saidaFixa.CategoriaId == id);
 
         if (existeSaida)
         {

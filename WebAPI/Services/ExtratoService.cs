@@ -15,13 +15,14 @@ public class ExtratoService : IExtratoService
         _context = context;
     }
 
-    public async Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoFixoCreateModel model)
+    public async Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(int idSaidaFixa, ExtratoFixoCreateModel model)
     {
         Categoria? categoria = await _context.Categorias.FindAsync(model.CategoriaId);
         Pessoa? pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
         DateTime dataTratada = new DateTime(model.Data.Year, model.Data.Month, 1, 0, 0, 0, DateTimeKind.Utc); // verificar de remover a hora do banco
         TipoMovimento? tipoMovimento = await _context.TiposMovimentos.FindAsync(2);
         List<Extrato> novosExtratos = new List<Extrato>();
+        SaidaFixa? saidaFixa = await _context.SaidasFixas.FindAsync(idSaidaFixa);
 
         if (categoria == null || pessoa == null || tipoMovimento == null)
         {
@@ -53,7 +54,8 @@ public class ExtratoService : IExtratoService
                 Categoria = categoria,
                 Pessoa = pessoa,
                 Mes = mesAtual,
-                TipoMovimento = tipoMovimento
+                TipoMovimento = tipoMovimento,
+                SaidaFixa = saidaFixa
             };
 
             novosExtratos.Add(extrato);
@@ -139,7 +141,46 @@ public class ExtratoService : IExtratoService
             .OrderBy(m => m.DataInicial)
             .FirstOrDefaultAsync();
     }
+    public async Task<IEnumerable<ExtratoDTO>> EditarExtratoAsync(int id, ExtratoFixoEditModel model)
+    {
+        List<Extrato> extratos = await _context.Extratos
+            .Where(e => e.SaidaFixaId == id)
+            .ToListAsync();
 
+        if (!extratos.Any()) return [];
+
+        int qtdextratos = extratos.Count();
+
+        Console.Write($"olha aqui {qtdextratos} ------------------------------");
+
+        DateTime dataAtual = model.Data;
+
+        foreach (Extrato extrato in extratos)
+        {
+            if (extrato.Data.Year > model.Data.Year || extrato.Data.Year == model.Data.Year && extrato.Data.Month >= model.Data.Month)
+            {
+                Console.Write($"olha aqui a data{dataAtual} ------------------------------");
+                extrato.Descricao = model.Descricao;
+                extrato.ValorTotal = model.ValorTotal;
+                extrato.Data = dataAtual;
+                extrato.CategoriaId = model.CategoriaId;
+                extrato.PessoaId = model.PessoaId;
+            }
+            dataAtual = LidarProximaData(dataAtual);
+        }
+
+
+        await _context.SaveChangesAsync();
+
+        // List<ExtratoDTO> extratosDTOs = new List<ExtratoDTO>();
+        // foreach (Extrato extrato in extratosEditados)
+        // {
+        //     ExtratoDTO extratoDTO = ExtratoDTO.Map(extrato);
+        //     extratosDTOs.Add(extratoDTO);
+        // }
+
+        return extratos.Select(ExtratoDTO.Map).ToList();
+    }
     public async Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model)
     {
         Extrato? extrato = await _context.Extratos.FirstOrDefaultAsync(i => i.Id == id);
@@ -180,6 +221,20 @@ public class ExtratoService : IExtratoService
         }
 
         _context.Extratos.Remove(extrato);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool?> ExcluirExtratoFixosAsync(int saidaFixaId)
+    {
+        List<Extrato> listaExtratos = await _context.Extratos
+                 .Where(e => e.SaidaFixaId == saidaFixaId)
+                 .ToListAsync();
+
+        if (!listaExtratos.Any()) return false;
+
+        _context.Extratos.RemoveRange(listaExtratos);
         await _context.SaveChangesAsync();
 
         return true;

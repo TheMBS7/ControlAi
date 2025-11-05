@@ -12,6 +12,7 @@ import { NumericFormat } from "react-number-format";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { fetchPessoas } from "../services/pessoaService";
 
 
 
@@ -22,10 +23,12 @@ export default function  SaidaFixaCard(){
     const [novaSaidaFixa, setNovaSaidaFixa] = useState<SaidaFixa | undefined>(undefined);
     const [open, setOpen] = useState(false)
     const [saidaSendoEditada, setSaidaSendoEditada] = useState<SaidaFixa | undefined>(undefined);
-
+    const [pessoas, setPessoas] = useState<Pessoa[]>([]);
+    
     useEffect(() => {
         buscarSaidasFixas();
         buscarCategorias();
+        buscarPessoas()
     },[])
 
     async function buscarSaidasFixas(){
@@ -46,12 +49,21 @@ export default function  SaidaFixaCard(){
         }
     }
 
+    async function buscarPessoas() {
+        try{
+          const pessoaList = await fetchPessoas();
+          setPessoas(pessoaList)
+        }catch(erro){
+          console.error('Erro ao buscar pessoas', erro)
+        }
+      }
+
     async function handleCriar() {
         
         if (!novaSaidaFixa) return;
         
         if(!novaSaidaFixa.descricao.trim()) return;
-        novaSaidaFixa.pessoaId = 72;
+        
         try{
             await createSaidaFixa(novaSaidaFixa);
             setNovaSaidaFixa(undefined);
@@ -99,7 +111,7 @@ export default function  SaidaFixaCard(){
                         {mostrarForm && (
                             <>
                                 <div className="fixed inset-0 bg-background opacity-60 z-40"></div>
-                                <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4  max-w-3xl shadow-lg">
+                                <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 max-w-4xl shadow-lg">
                                     <CardHeader>
                                         <CardTitle>Criação de Nova Saída</CardTitle>
                                     </CardHeader>
@@ -112,7 +124,31 @@ export default function  SaidaFixaCard(){
                                         }))}
                                         />
                                         <Select
-                                        
+                                        onValueChange={(value) => {
+                                            const pessoaSelecionada = pessoas.find(p => p.nome === value)
+                                            setNovaSaidaFixa((prev) => ({
+                                                ...prev!,
+                                                pessoaId: pessoaSelecionada?.id ?? 0
+                                            }));
+                                        }}>
+                                            <SelectTrigger className="w-[25%]">
+                                                <SelectValue placeholder="Pessoa"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectLabel className="text-center">Pessoas</SelectLabel>
+                                                    {pessoas.map((pessoa) => (
+                                                        <SelectItem 
+                                                        value={pessoa.nome} 
+                                                        key={pessoa.id} 
+                                                        >
+                                                            {pessoa.nome}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        <Select
                                         onValueChange={(value) => {
                                             const categoriaSelecionada = categorias.find(cate => cate.nome === value)
                                             setNovaSaidaFixa((prev) => ({
@@ -121,7 +157,7 @@ export default function  SaidaFixaCard(){
                                             }));
                                         }}>
                                             <SelectTrigger className="w-[25%]">
-                                                <SelectValue placeholder="Selecione a Categoria"/>
+                                                <SelectValue placeholder="Categoria"/>
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
@@ -148,7 +184,7 @@ export default function  SaidaFixaCard(){
                                         onValueChange={(values) => {
                                             setNovaSaidaFixa((prev) => ({
                                                 ...prev!,
-                                                valor: values.floatValue ?? 0
+                                                valor: values.floatValue!
                                             }));
                                         }}
                                         />
@@ -213,6 +249,7 @@ export default function  SaidaFixaCard(){
                             <TableRow>
                                 <TableHead/>
                                 <TableHead className="font-bold">DESCRIÇÃO</TableHead>
+                                <TableHead className="font-bold">PESSOA</TableHead>
                                 <TableHead className="font-bold">CATEGORIA</TableHead>
                                 <TableHead className="font-bold">VALOR</TableHead>
                                 <TableHead className="font-bold">VENCIMENTO</TableHead>
@@ -221,6 +258,7 @@ export default function  SaidaFixaCard(){
                         <TableBody>
                         {saidasFixas.map((saidaFixa) => {
                             const categoriaMapeada = categorias.find(categoria => categoria.id === saidaFixa.categoriaId);
+                            const pessoaMapeada = pessoas.find(pessoa => pessoa.id === saidaFixa.pessoaId);
                             return (
                             <TableRow key={saidaFixa.id}>
                                 <TableCell>
@@ -251,6 +289,32 @@ export default function  SaidaFixaCard(){
                                                 }))}
                                                 />
                                                 <Select
+                                                value={pessoas.find(p => p.id === saidaSendoEditada.pessoaId)?.nome}
+                                                onValueChange={(value) => {
+                                                    const pessoaSelecionada = pessoas.find(p => p.nome === value)
+                                                    setSaidaSendoEditada((prev) => ({
+                                                        ...prev!,
+                                                        pessoaId: pessoaSelecionada?.id ?? 0
+                                                    }));
+                                                }}>
+                                                    <SelectTrigger className="w-[25%]">
+                                                        <SelectValue placeholder="Pessoa"/>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel className="text-center">Pessoas</SelectLabel>
+                                                            {pessoas.map((pessoa) => (
+                                                                <SelectItem 
+                                                                value={pessoa.nome} 
+                                                                key={pessoa.id} 
+                                                                >
+                                                                    {pessoa.nome}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Select
                                                 value={categorias.find(c => c.id === saidaSendoEditada.categoriaId)?.nome}
                                                 onValueChange={(value) => {
                                                     const categoriaSelecionada = categorias.find(cate => cate.nome === value)
@@ -260,7 +324,7 @@ export default function  SaidaFixaCard(){
                                                     }));
                                                 }}>
                                                     <SelectTrigger className="w-[25%]">
-                                                        <SelectValue placeholder="Selecione a Categoria"/>
+                                                        <SelectValue placeholder="Categoria"/>
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
@@ -287,7 +351,7 @@ export default function  SaidaFixaCard(){
                                                 onValueChange={(values) => {
                                                     setSaidaSendoEditada((prev) => ({
                                                         ...prev!,
-                                                        valor: values.floatValue ?? 0
+                                                        valor: values.floatValue!
                                                     }));
                                                 }}
                                                 />
@@ -353,6 +417,9 @@ export default function  SaidaFixaCard(){
                                 </TableCell>
                                 <TableCell>
                                     {saidaFixa.descricao}
+                                </TableCell>
+                                <TableCell>
+                                    {pessoaMapeada?.nome}
                                 </TableCell>
                                 <TableCell>
                                     {categoriaMapeada?.nome}

@@ -24,7 +24,7 @@ public class EntradaFixaService : IEntradaFixaService
             return null;
         }
 
-        var novaEntradaFixa = new EntradaFixa
+        EntradaFixa novaEntradaFixa = new EntradaFixa
         {
             Descricao = model.Descricao,
             Valor = model.Valor,
@@ -49,7 +49,8 @@ public class EntradaFixaService : IEntradaFixaService
         // Verifica se a descrição já está em uso
         if (model.Descricao != entradaFixa.Descricao)
         {
-            var descricaoExiste = await _context.EntradasFixas.AnyAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
+            bool descricaoExiste = await _context.EntradasFixas.AnyAsync(i => i.Descricao.ToLower() == model.Descricao.ToLower());
+
             if (descricaoExiste)
             {
                 return null;
@@ -66,7 +67,7 @@ public class EntradaFixaService : IEntradaFixaService
     }
     public async Task<bool> ExcluirEntradaFixaAsync(int id)
     {
-        var entradaFixa = await _context.EntradasFixas.FindAsync(id);
+        EntradaFixa? entradaFixa = await _context.EntradasFixas.FindAsync(id);
 
         if (entradaFixa == null)
             return false;

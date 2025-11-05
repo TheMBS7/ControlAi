@@ -17,14 +17,14 @@ public class PessoaService : IPessoaService
 
     public async Task<PessoaDTO?> CriarPessoaAsync(PessoaCreateModel model)
     {
-        var repetePessoa = await _context.Pessoas.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
+        bool repetePessoa = await _context.Pessoas.AnyAsync(i => i.Nome.ToLower() == model.Nome.ToLower());
 
         if (repetePessoa)
         {
             return null;
         }
 
-        var novaPessoa = new Pessoa
+        Pessoa novaPessoa = new Pessoa
         {
             Nome = model.Nome
         };
@@ -62,7 +62,7 @@ public class PessoaService : IPessoaService
 
     public async Task<bool> ExcluirPessoaAsync(int id)
     {
-        var pessoa = await _context.Pessoas.FindAsync(id);
+        Pessoa? pessoa = await _context.Pessoas.FindAsync(id);
 
         if (pessoa == null)
             return false;

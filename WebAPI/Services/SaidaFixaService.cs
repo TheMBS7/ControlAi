@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
@@ -50,7 +49,9 @@ public class SaidaFixaService : ISaidaFixaService
         _context.SaidasFixas.Add(novaSaidaFixa);
         await _context.SaveChangesAsync();
 
-        var novaModel = new ExtratoFixoCreateModel
+        int idSaidaFixa = novaSaidaFixa.Id;
+
+        ExtratoFixoCreateModel novaModel = new ExtratoFixoCreateModel
         (
             model.Descricao,
             model.Valor,
@@ -59,7 +60,7 @@ public class SaidaFixaService : ISaidaFixaService
             pessoa.Id
         );
 
-        IEnumerable<ExtratoDTO> resultadoExtrato = await _extratoService.CriarExtratosAsync(novaModel);
+        IEnumerable<ExtratoDTO> resultadoExtrato = await _extratoService.CriarExtratosAsync(idSaidaFixa, novaModel);
 
         if (resultadoExtrato == null)
         {
@@ -70,7 +71,6 @@ public class SaidaFixaService : ISaidaFixaService
     }
     public async Task<SaidaFixaDTO?> EditarSaidaFixaAsync(int id, SaidaFixaEditModel model)
     {
-
         SaidaFixa? saidaFixa = await _context.SaidasFixas.FirstOrDefaultAsync(i => i.Id == id);
 
         if (saidaFixa == null)
@@ -92,8 +92,26 @@ public class SaidaFixaService : ISaidaFixaService
         saidaFixa.Valor = model.Valor;
         saidaFixa.DataVencimento = model.DataVencimento;
         saidaFixa.CategoriaId = model.CategoriaId;
+        saidaFixa.PessoaId = model.PessoaId;
 
         await _context.SaveChangesAsync();
+
+        ExtratoFixoEditModel novaModel = new ExtratoFixoEditModel
+        (
+            model.Descricao,
+            model.Valor,
+            model.DataVencimento,
+            model.CategoriaId,
+            model.PessoaId
+        );
+
+        IEnumerable<ExtratoDTO?> resultadoExtrato = await _extratoService.EditarExtratoAsync(id, novaModel);
+
+        if (!resultadoExtrato.Any())
+        {
+            return null;
+        }
+
 
         return SaidaFixaDTO.Map(saidaFixa);
     }
@@ -103,6 +121,13 @@ public class SaidaFixaService : ISaidaFixaService
 
         if (saidaFixa == null)
             return false;
+
+        bool? resultadoExtrato = await _extratoService.ExcluirExtratoFixosAsync(id);
+
+        if (resultadoExtrato == false)
+        {
+            return false;
+        }
 
         _context.SaidasFixas.Remove(saidaFixa);
         await _context.SaveChangesAsync();

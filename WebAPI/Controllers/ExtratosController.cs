@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> EditarExtrato(int id, ExtratoEditModel model, [FromServices] IExtratoService extratoService)
         {
 
-            var extratoAtualizado = await extratoService.EditarExtratoAsync(id, model);
+            ExtratoDTO? extratoAtualizado = await extratoService.EditarExtratoAsync(id, model);
 
             if (extratoAtualizado == null)
             {
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeletarExtrato(int id, ExtratoDeleteModel model, [FromServices] IExtratoService extratoService)
         {
-            var resultadoDelete = await extratoService.ExcluirExtratoAsync(id, model);
+            bool? resultadoDelete = await extratoService.ExcluirExtratoAsync(id, model);
 
             if (resultadoDelete == null)
                 return NotFound("Extrato não encontrada.");
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Extratos")]
         public async Task<IActionResult> ExibirExtratos([FromServices] IExtratoService extratoService)
         {
-            var extratos = await extratoService.MostrarExtratosAsync();
+            IEnumerable<ExtratoDTO> extratos = await extratoService.MostrarExtratosAsync();
 
             if (!extratos.Any())
                 return NotFound("Nenhum extrato encontrado.");
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Extrato/{mesId}")]
         public async Task<IActionResult> ExibirExtratoId(int mesId, [FromServices] IExtratoService extratoService)
         {
-            var extrato = await extratoService.MostrarExtratoIdAsync(mesId);
+            IEnumerable<ExtratoDTO> extrato = await extratoService.MostrarExtratoIdAsync(mesId);
 
             // if (!extrato.Any())
             //     return NotFound("Nenhum extrato encontrado.");
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Total/{ano}")]
         public async Task<IActionResult> ExibirTotalAno(int ano, [FromServices] IExtratoService extratoService)
         {
-            var valoresTotais = await extratoService.CalcularTotalAnoAsync(ano);
+            IEnumerable<TotalPeriodo>? valoresTotais = await extratoService.CalcularTotalAnoAsync(ano);
 
             return Ok(valoresTotais);
         }
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
         [HttpGet("Display-Total-Mes/{id}")]
         public async Task<IActionResult> ExibirTotalMes(int id, [FromServices] IExtratoService extratoService)
         {
-            var valorTotal = await extratoService.CalcularTotalMesIdAsync(id);
+            TotalPeriodo? valorTotal = await extratoService.CalcularTotalMesIdAsync(id);
 
             return Ok(valorTotal);
         }
