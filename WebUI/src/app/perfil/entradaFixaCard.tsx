@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { NumericFormat } from 'react-number-format';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { fetchPessoas } from "../services/pessoaService";
+import { fetchCategorias } from "../services/categoriaService";
 
 export default function EntradaFixaCard(){
     const [entradasFixas, setEntradasFixas] = useState<EntradaFixa[]>([]);
@@ -17,10 +20,14 @@ export default function EntradaFixaCard(){
     const [mostrarForm, setMostrarForm] = useState(false)
     const [open, setOpen] = useState(false)
     const [entradaSendoEditada, setEntradaSendoEditada] = useState<EntradaFixa | undefined>(undefined);
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [pessoas, setPessoas] = useState<Pessoa[]>([]);
 
 
     useEffect(() => {
         carregarEntradasFixas();
+        buscarCategorias();
+        buscarPessoas()
     },[])
     
 
@@ -32,7 +39,25 @@ export default function EntradaFixaCard(){
             console.error("Erro ao carregar pessoas:", erro);
         }
     }
+
+    async function buscarCategorias() {
+            try{
+                const categoriasList = await fetchCategorias();
+                setCategorias(categoriasList);
+            }catch(erro){
+                console.error("Erro ao buscar categorias", erro)
+            }
+        }
     
+    async function buscarPessoas() {
+        try{
+            const pessoaList = await fetchPessoas();
+            setPessoas(pessoaList)
+        }catch(erro){
+            console.error('Erro ao buscar pessoas', erro)
+        }
+        }
+
     async function handleCriar() {
         if(!novaEntradaFixa) return;
         
@@ -87,7 +112,7 @@ export default function EntradaFixaCard(){
                         {mostrarForm && (
                             <>
                                 <div className="fixed inset-0 bg-background opacity-60 z-40"></div>
-                                <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 w-[90%] max-w-xl shadow-lg">
+                                <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 max-w-4xl shadow-lg">
                                     <CardHeader>    
                                         <CardTitle>Cadastro de Nova Entrada</CardTitle>
                                     </CardHeader>
@@ -100,6 +125,56 @@ export default function EntradaFixaCard(){
                                             descricao: e.target.value //aqui eu escolho qual o campo eu to atualizando nesse input
                                         })))}>
                                         </Input>
+                                        <Select
+                                        onValueChange={(value) => {
+                                            const pessoaSelecionada = pessoas.find(p => p.nome === value)
+                                            setNovaEntradaFixa((prev) => ({
+                                                ...prev!,
+                                                pessoaId: pessoaSelecionada?.id ?? 0
+                                            }));
+                                        }}>
+                                            <SelectTrigger className="w-[25%]">
+                                                <SelectValue placeholder="Pessoa"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectLabel className="text-center">Pessoas</SelectLabel>
+                                                    {pessoas.map((pessoa) => (
+                                                        <SelectItem 
+                                                        value={pessoa.nome} 
+                                                        key={pessoa.id} 
+                                                        >
+                                                            {pessoa.nome}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        <Select
+                                        onValueChange={(value) => {
+                                            const categoriaSelecionada = categorias.find(cate => cate.nome === value)
+                                            setNovaEntradaFixa((prev) => ({
+                                                ...prev!,
+                                                categoriaId: categoriaSelecionada?.id ?? 0
+                                            }));
+                                        }}>
+                                            <SelectTrigger className="w-[25%]">
+                                                <SelectValue placeholder="Categoria"/>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectLabel className="text-center">Categorias</SelectLabel>
+                                                    {categorias.map((categoria) => (
+                                                        <SelectItem 
+                                                        value={categoria.nome} 
+                                                        key={categoria.id} 
+                                                        >
+                                                            {categoria.nome}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
                                         <NumericFormat
                                         className=""
                                         value={novaEntradaFixa?.valor ?? 0}
@@ -112,7 +187,7 @@ export default function EntradaFixaCard(){
                                         onValueChange={(values) => {
                                             setNovaEntradaFixa((prev) => ({
                                             ...prev!,
-                                             valor: values.floatValue ?? 0 // Atualiza o valor ou coloca zero
+                                             valor: values.floatValue!
                                             }));
                                         }}
                                         />
@@ -175,12 +250,17 @@ export default function EntradaFixaCard(){
                             <TableRow>
                                 <TableHead></TableHead>
                                 <TableHead className="font-bold">DESCRIÇÃO</TableHead>
+                                <TableHead className="font-bold">PESSOA</TableHead>
+                                <TableHead className="font-bold">CATEGORIA</TableHead>
                                 <TableHead className="font-bold">VALOR</TableHead>
                                 <TableHead className="font-bold">REFERÊNCIA</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {entradasFixas.map((entradaFixa) => (
+                        {entradasFixas.map((entradaFixa) => {
+                            const categoriaMapeada = categorias.find(categoria => categoria.id === entradaFixa.categoriaId);
+                            const pessoaMapeada = pessoas.find(pessoa => pessoa.id === entradaFixa.pessoaId);
+                            return (
                             <TableRow key={entradaFixa.id}>
                                 <TableCell>
                                     <Button
@@ -198,7 +278,7 @@ export default function EntradaFixaCard(){
                                    {entradaSendoEditada?.id === entradaFixa.id &&
                                     <>
                                         <div className="fixed inset-0 bg-background opacity-60 z-40"></div>
-                                        <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 w-[90%] max-w-xl shadow-lg">
+                                        <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-4 max-w-4xl shadow-lg">
                                             <CardHeader>
                                                 <CardTitle className='text-2xl'>Edição de Entrada Fixa</CardTitle>
                                             </CardHeader>
@@ -211,6 +291,58 @@ export default function EntradaFixaCard(){
                                                     descricao: e.target.value //aqui eu escolho qual o campo eu to atualizando nesse input
                                                 })))}>
                                                 </Input>
+                                                <Select
+                                                value={pessoas.find(p => p.id === entradaSendoEditada.pessoaId)?.nome}
+                                                onValueChange={(value) => {
+                                                    const pessoaSelecionada = pessoas.find(p => p.nome === value)
+                                                    setEntradaSendoEditada((prev) => ({
+                                                        ...prev!,
+                                                        pessoaId: pessoaSelecionada?.id ?? 0
+                                                    }));
+                                                }}>
+                                                    <SelectTrigger className="w-[25%]">
+                                                        <SelectValue placeholder="Pessoa"/>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel className="text-center">Pessoas</SelectLabel>
+                                                            {pessoas.map((pessoa) => (
+                                                                <SelectItem 
+                                                                value={pessoa.nome} 
+                                                                key={pessoa.id} 
+                                                                >
+                                                                    {pessoa.nome}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Select
+                                                value={categorias.find(c => c.id === entradaSendoEditada.categoriaId)?.nome}
+                                                onValueChange={(value) => {
+                                                    const categoriaSelecionada = categorias.find(cate => cate.nome === value)
+                                                    setEntradaSendoEditada((prev) => ({
+                                                        ...prev!,
+                                                        categoriaId: categoriaSelecionada?.id ?? 0
+                                                    }));
+                                                }}>
+                                                    <SelectTrigger className="w-[25%]">
+                                                        <SelectValue placeholder="Categoria"/>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel className="text-center">Categorias</SelectLabel>
+                                                            {categorias.map((categoria) => (
+                                                                <SelectItem 
+                                                                value={categoria.nome} 
+                                                                key={categoria.id} 
+                                                                >
+                                                                    {categoria.nome}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
                                                 <NumericFormat
                                                 className=""
                                                 value={entradaSendoEditada?.valor}
@@ -223,7 +355,7 @@ export default function EntradaFixaCard(){
                                                 onValueChange={(values) => {
                                                     setEntradaSendoEditada((prev) => ({
                                                     ...prev!,
-                                                    valor: values.floatValue ?? 0 // Atualiza o valor ou coloca zero
+                                                    valor: values.floatValue!
                                                     }));
                                                 }}
                                                 />
@@ -291,6 +423,12 @@ export default function EntradaFixaCard(){
                                     {entradaFixa.descricao}
                                 </TableCell>
                                 <TableCell>
+                                    {pessoaMapeada?.nome}
+                                </TableCell>
+                                <TableCell>
+                                    {categoriaMapeada?.nome}
+                                </TableCell>
+                                <TableCell>
                                     {new Intl.NumberFormat("pt-BR", {
                                         style: "currency",
                                         currency: "BRL",
@@ -300,7 +438,8 @@ export default function EntradaFixaCard(){
                                     {new Date(entradaFixa.dataReferencia).toLocaleDateString()}
                                 </TableCell>
                             </TableRow>
-                        ))}
+                            )
+                        })}
                         </TableBody>
                     </Table>
                 </CardContent>

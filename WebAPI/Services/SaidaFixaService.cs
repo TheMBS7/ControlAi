@@ -24,15 +24,7 @@ public class SaidaFixaService : ISaidaFixaService
         Categoria? categoria = await _context.Categorias.FindAsync(model.CategoriaId);
         Pessoa? pessoa = await _context.Pessoas.FindAsync(model.PessoaId);
 
-        if (categoria == null)
-            return null;
-
-        if (repeteDescricao != null)
-        {
-            return null;
-        }
-
-        if (pessoa == null)
+        if (categoria == null || repeteDescricao != null || pessoa == null)
         {
             return null;
         }
@@ -57,7 +49,8 @@ public class SaidaFixaService : ISaidaFixaService
             model.Valor,
             model.DataVencimento,
             categoria.Id,
-            pessoa.Id
+            pessoa.Id,
+            2
         );
 
         IEnumerable<ExtratoDTO> resultadoExtrato = await _extratoService.CriarExtratosAsync(idSaidaFixa, novaModel);
@@ -105,7 +98,7 @@ public class SaidaFixaService : ISaidaFixaService
             model.PessoaId
         );
 
-        IEnumerable<ExtratoDTO?> resultadoExtrato = await _extratoService.EditarExtratoAsync(id, novaModel);
+        IEnumerable<ExtratoDTO?> resultadoExtrato = await _extratoService.EditarExtratoAsync(id, 2, novaModel);
 
         if (!resultadoExtrato.Any())
         {
@@ -122,7 +115,7 @@ public class SaidaFixaService : ISaidaFixaService
         if (saidaFixa == null)
             return false;
 
-        bool? resultadoExtrato = await _extratoService.ExcluirExtratoFixosAsync(id);
+        bool? resultadoExtrato = await _extratoService.ExcluirExtratoFixosAsync(id, 2);
 
         if (resultadoExtrato == false)
         {

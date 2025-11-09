@@ -11,7 +11,7 @@ public interface IEntradaFixaService
     public Task<IEnumerable<EntradaFixaDTO>> MostrarEntradasFixasAsync();
 }
 
-public record EntradaFixaDTO(int Id, string Descricao, decimal Valor, DateTime DataReferencia)
+public record EntradaFixaDTO(int Id, string Descricao, decimal Valor, DateTime DataReferencia, int CategoriaId, int PessoaId)
 {
     public static EntradaFixaDTO Map(EntradaFixa entradaFixa)
     {
@@ -19,7 +19,9 @@ public record EntradaFixaDTO(int Id, string Descricao, decimal Valor, DateTime D
             entradaFixa.Id,
             entradaFixa.Descricao,
             entradaFixa.Valor,
-            entradaFixa.DataReferencia
+            entradaFixa.DataReferencia,
+            entradaFixa.CategoriaId,
+            entradaFixa.PessoaId
             );
     }
 }

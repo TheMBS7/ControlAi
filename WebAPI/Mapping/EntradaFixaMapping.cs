@@ -22,6 +22,18 @@ internal class EntradaFixaMapping : IEntityTypeConfiguration<EntradaFixa>
         builder
             .Property(x => x.DataReferencia)
             .IsRequired();
+
+        builder
+            .HasOne(x => x.Categoria)
+            .WithMany()
+            .HasForeignKey(x => x.CategoriaId)
+            .IsRequired();
+
+        builder
+            .HasOne(x => x.Pessoa)
+            .WithMany()
+            .HasForeignKey(x => x.PessoaId)
+            .IsRequired();
     }
 
 }

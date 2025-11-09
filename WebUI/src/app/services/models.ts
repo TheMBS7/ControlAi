@@ -3,6 +3,8 @@ interface EntradaFixa {
     descricao: string;
     valor: number;
     dataReferencia: Date;
+    categoriaId: number;
+    pessoaId: number;
 }
 
 interface SaidaFixa {

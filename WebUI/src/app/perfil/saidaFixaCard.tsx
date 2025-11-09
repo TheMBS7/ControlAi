@@ -28,7 +28,7 @@ export default function  SaidaFixaCard(){
     useEffect(() => {
         buscarSaidasFixas();
         buscarCategorias();
-        buscarPessoas()
+        buscarPessoas();
     },[])
 
     async function buscarSaidasFixas(){
@@ -435,8 +435,7 @@ export default function  SaidaFixaCard(){
                                 </TableCell>
                             </TableRow>
                             ) 
-
-                             })}
+                        })}
                         </TableBody>
                     </Table>
                 </CardContent>
