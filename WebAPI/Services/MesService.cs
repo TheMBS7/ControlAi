@@ -1,8 +1,10 @@
 
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Data;
 using WebAPI.Entities;
+using WebAPI.RequestModels;
 using WebAPI.Services.Interfaces;
 
 namespace WebAPI.Services;
@@ -10,10 +12,12 @@ namespace WebAPI.Services;
 public class MesService : IMesService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IExtratoService _extratoService;
 
-    public MesService(ApplicationDbContext context)
+    public MesService(ApplicationDbContext context, IExtratoService extratoService)
     {
         _context = context;
+        _extratoService = extratoService;
     }
 
     public async Task<IEnumerable<MesDTO>> CriarPeriodoAsync()
@@ -37,13 +41,23 @@ public class MesService : IMesService
             meses.Add(new Mes
             {
                 Descricao = dataInicial.ToString("MMMM", new System.Globalization.CultureInfo("pt-BR")),
-                DataInicial = DateTime.SpecifyKind(dataInicial, DateTimeKind.Utc),
-                DataFinal = DateTime.SpecifyKind(dataFinal, DateTimeKind.Utc)
+                DataInicial = DateTime.SpecifyKind(dataInicial, DateTimeKind.Local).ToUniversalTime(),
+                DataFinal = DateTime.SpecifyKind(dataFinal, DateTimeKind.Local).ToUniversalTime()
             });
         }
 
         _context.Meses.AddRange(meses);
         await _context.SaveChangesAsync();
+
+        try
+        {
+            await CriarMovimentosAsync(anoBase);
+        }
+        catch
+        {
+            return [];
+        }
+
 
         List<MesDTO> mesesCriados = new List<MesDTO>();
         foreach (Mes mes in meses)
@@ -78,5 +92,57 @@ public class MesService : IMesService
             return null;
         }
         return MesDTO.Map(mesEncontrado);
+    }
+
+
+    private async Task<bool> CriarMovimentosAsync(int ano)
+    {
+        int anoAnterior = ano - 1;
+
+        DateTime primeiroDiaUltimoMes = new DateTime(anoAnterior, 12, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime ultimoDiaUltimoMes = primeiroDiaUltimoMes.AddMonths(1).AddDays(-1);
+
+        IEnumerable<Extrato> extratosFixos = await _context.Extratos
+            .Where(e => (e.SaidaFixaId != null || e.EntradaFixaId != null) && e.Data.Date >= primeiroDiaUltimoMes.Date && e.Data.Date <= ultimoDiaUltimoMes.Date)
+            .ToListAsync();
+
+        if (!extratosFixos.Any())
+        {
+            return false;
+        }
+
+        int id = 0;
+
+        foreach (Extrato? extrato in extratosFixos)
+        {
+            if (extrato?.SaidaFixaId != null)
+            {
+                id = extrato.SaidaFixaId.Value;
+            }
+            else if (extrato?.EntradaFixaId != null)
+            {
+                id = extrato.EntradaFixaId.Value;
+            }
+            else
+            {
+                return false;
+            }
+
+            DateTime dataAjustada = extrato.Data.AddMonths(1);
+
+            ExtratoFixoCreateModel model = new ExtratoFixoCreateModel
+            (
+                extrato.Descricao,
+                extrato.ValorTotal,
+                dataAjustada,
+                extrato.CategoriaId,
+                extrato.PessoaId,
+                extrato.TipoMovimentoId
+            );
+
+            await _extratoService.CriarExtratosAsync(id, model);
+        }
+
+        return true;
     }
 }

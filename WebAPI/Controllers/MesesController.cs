@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         [HttpPost("Criar-Periodos")]
         public async Task<IActionResult> CriarPeriodos([FromServices] IMesService mesService)
         {
-            IEnumerable<MesDTO> mesesCriados = await mesService.CriarPeriodoAsync();
+            IEnumerable<MesDTO?> mesesCriados = await mesService.CriarPeriodoAsync();
 
             if (!mesesCriados.Any())
             {
