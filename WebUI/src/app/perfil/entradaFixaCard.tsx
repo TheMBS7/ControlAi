@@ -177,7 +177,7 @@ export default function EntradaFixaCard(){
                                         </Select>
                                         <NumericFormat
                                         className=""
-                                        value={novaEntradaFixa?.valor ?? 0}
+                                        value={novaEntradaFixa?.valor}
                                         thousandSeparator="."
                                         decimalSeparator=","
                                         prefix="R$ "

@@ -94,5 +94,13 @@ namespace WebAPI.Controllers
 
             return Ok(valorTotal);
         }
+
+        [HttpGet("Display-Total-Gasto-Por-Pessoa-No-Mes/{id}")]
+        public async Task<IActionResult> ExibirPorPessoaNoMes(int id, [FromServices] IExtratoService extratoService)
+        {
+            IEnumerable<TotalGastoPessoa?> valorTotal = await extratoService.CalcularTotalGastoPorPessoaAsync(id);
+
+            return Ok(valorTotal);
+        }
     }
 }

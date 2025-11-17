@@ -53,6 +53,12 @@ interface TipoMovimento {
 }
 
 interface TotalMes {
-        mesId: number,
-        totalMes: number
-    }
+    mesId: number,
+    totalMes: number
+}
+
+interface TotalporPessoa{
+    mesId: number,
+    pessoaId: number,
+    totalGasto: number
+}

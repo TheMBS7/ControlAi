@@ -1,7 +1,7 @@
 'use client'
 
 import { fetchCategorias } from '@/app/services/categoriaService';
-import { calcularTotalMes, createExtrato, deleteExtrato, editExtrato, fetchExtratoId, fetchExtratos } from '@/app/services/extratoService';
+import { calcularTotalMes, calcularTotalPessoaMes, createExtrato, deleteExtrato, editExtrato, fetchExtratoId, fetchExtratos } from '@/app/services/extratoService';
 import { fetchPeriodosId } from '@/app/services/mesService';
 import { fetchPessoas } from '@/app/services/pessoaService';
 import { fetchMovimentos } from '@/app/services/tipoMovimentoService';
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronDownIcon, Pencil, Trash, CircleArrowUp, CircleArrowDownIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDownIcon, Pencil, Trash, CircleArrowUp, CircleArrowDownIcon, ChevronLeft, ChevronRight, Eye, EyeClosed } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { use, useEffect, useState } from 'react';
 import { NumericFormat } from 'react-number-format';
@@ -38,6 +38,8 @@ export default function ExtratosPage({
   const [excluirTodasParcelas, setExcluirTodasParcelas] = useState(false);
   const [mostrarFormExclusao, setMostrarFormExclusao] = useState(false);
   const [totalMes, setTotalMes] = useState<TotalMes>();
+  const [totalPorPessoa, setTotalPorPessoa] = useState<TotalporPessoa[]>([]);
+  const [exibirGastos, setExibirGastos] = useState(true);
 
   useEffect(() => {
     carregarExtratos();
@@ -49,6 +51,7 @@ export default function ExtratosPage({
   useEffect(() => {
     if(mesBanco){
       handleTotal()
+      handleTotalPorPessoa();
     }
   },[extratos])
   
@@ -113,6 +116,15 @@ export default function ExtratosPage({
     }
   }
 
+  async function handleTotalPorPessoa() {
+    try{
+      const valorPorPessoa = await calcularTotalPessoaMes(parseInt(mes));
+      setTotalPorPessoa(valorPorPessoa);
+    }catch(erro){
+      console.error("erro ao calcular total por pessoa", erro)
+    }
+  }
+
   async function handleCriar() {
     if(!novoExtrato) return;
 
@@ -154,8 +166,46 @@ export default function ExtratosPage({
   }
 
   return (
-    <div className='mt-[80px]'>
-      <Card className='w-[50%] mx-auto'>
+    <div className='mt-15 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-30 items-start'>
+      <Card className='w-[320px] ml-30'>
+        <CardHeader>
+          <CardTitle className='font-bold text-2xl'>Gastos por Pessoa</CardTitle>
+          <CardAction>
+            <Button
+            variant="ghost"
+            className=''
+            onClick={() => setExibirGastos(!exibirGastos)}
+            >
+              {exibirGastos ? <Eye className=' size-6 text-[#12698A]'/> : <EyeClosed className='size-6 text-[#12698A]'/>}
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          {exibirGastos &&(
+            <Table>
+              <TableHeader>
+                <TableRow className='font-bold'>
+                  <TableCell>PESSOA</TableCell>
+                  <TableCell>TOTAL</TableCell>
+                </TableRow>
+              </TableHeader>
+            <TableBody>
+            {totalPorPessoa.map((pessoa) => {
+              const pessoaMapeada = pessoas.find(p => p.id === pessoa.pessoaId);
+              const totalGasto = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pessoa.totalGasto)
+              return(
+                <TableRow key={pessoa.pessoaId}>
+                  <TableCell>{pessoaMapeada!.nome}</TableCell>
+                  <TableCell>{totalGasto}</TableCell>
+                </TableRow>
+                    );
+              })}
+                </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+      <Card className='mx-auto w-full max-w-5xl'>
         <CardHeader>
           <CardTitle className='font-bold text-4xl flex justify-center'>
             Extrato do mês de {mesBanco?.descricao}

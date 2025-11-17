@@ -338,4 +338,30 @@ public class ExtratoService : IExtratoService
 
         return new TotalPeriodo(id, totalMes);
     }
+    public async Task<IEnumerable<TotalGastoPessoa>> CalcularTotalGastoPorPessoaAsync(int id)
+    {
+        List<IGrouping<int, Extrato>> extratosDoMes = await _context.Extratos
+                .Where(e => e.MesId == id)
+                .GroupBy(e => e.PessoaId)
+                .ToListAsync();
+
+        List<TotalGastoPessoa> valoresTotais = new List<TotalGastoPessoa>();
+
+        foreach (IGrouping<int, Extrato>? grupo in extratosDoMes)
+        {
+            decimal totalPessoa = 0;
+
+            foreach (Extrato extrato in grupo)
+            {
+                if (extrato.TipoMovimentoId == 2)
+                {
+                    totalPessoa += extrato.ValorTotal;
+                }
+            }
+
+            valoresTotais.Add(new TotalGastoPessoa(grupo.Key, totalPessoa));
+        }
+
+        return valoresTotais;
+    }
 }

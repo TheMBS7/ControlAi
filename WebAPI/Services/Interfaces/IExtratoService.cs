@@ -6,7 +6,7 @@ namespace WebAPI.Services.Interfaces;
 
 public interface IExtratoService
 {
-    public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(int idSaidaFixa, ExtratoFixoCreateModel model);
+    public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(int id, ExtratoFixoCreateModel model);
     public Task<IEnumerable<ExtratoDTO>> CriarExtratosAsync(ExtratoCreateModel model);
     public Task<ExtratoDTO?> EditarExtratoAsync(int id, ExtratoEditModel model);
     public Task<IEnumerable<ExtratoDTO>> EditarExtratoAsync(int id, int tipoMovimentoId, ExtratoFixoEditModel model);
@@ -16,8 +16,10 @@ public interface IExtratoService
     public Task<IEnumerable<ExtratoDTO>> MostrarExtratoIdAsync(int mesId);
     public Task<IEnumerable<TotalPeriodo>> CalcularTotalAnoAsync(int ano);
     public Task<TotalPeriodo> CalcularTotalMesIdAsync(int id);
+    public Task<IEnumerable<TotalGastoPessoa>> CalcularTotalGastoPorPessoaAsync(int id);
 }
 
+public record TotalGastoPessoa(int PessoaId, decimal TotalGasto);
 public record TotalPeriodo(int MesId, decimal TotalMes);
 public record ExtratoDTO(int Id, string Descricao, decimal ValorTotal, DateTime Data, int NumeroMaxParcelas, int NumeroParcela, Guid IdParcelas, int CategoriaId, int PessoaId, int MesId, int TipoMovimentoId)
 {

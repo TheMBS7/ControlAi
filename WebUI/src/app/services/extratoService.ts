@@ -84,5 +84,13 @@ export async function calcularTotalAno(ano: number) : Promise<TotalMes[]> {
   if(!response.ok) throw new Error("Erro ao calcular total ano.");
   
   return response.json();
-  
+}
+
+export async function calcularTotalPessoaMes(id: number) {
+  const response = await fetch(`${BASE_URL}/Display-Total-Gasto-Por-Pessoa-No-Mes/${id}`,{
+    cache: "no-store"
+  });
+  if(!response.ok) throw new Error("Erro ao calcular total por pessoa no mês.");
+
+  return response.json();
 }
